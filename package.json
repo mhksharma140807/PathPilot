@@ -1,0 +1,9 @@
+{
+  "name": "pathpilot",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {},
+  "author": "Mahak Sharma",
+  "license": "MIT",
+  "description": "Career Learning Platform built with MERN Stack"
+}
