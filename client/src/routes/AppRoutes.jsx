@@ -5,6 +5,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import MyCareer from "../pages/MyCareer";
 import LearningModules from "../pages/LearningModules";
 import ModuleDetails from "../pages/ModuleDetails";
+import Progress from "../pages/Progress";
 
 function AppRoutes() {
   return (
@@ -19,7 +20,7 @@ function AppRoutes() {
         <Route path="/learning-modules" element={<LearningModules />} />
         <Route path="/student/modules" element={<LearningModules />} />
         <Route path="/learning-modules/:moduleId" element={<ModuleDetails />} />
-        <Route path="/progress" element={<StudentDashboard />} />
+        <Route path="/progress" element={<Progress />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/student/dashboard" replace />} />

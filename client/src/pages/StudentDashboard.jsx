@@ -204,14 +204,14 @@ function StudentDashboard() {
                       />
 
                       <DashboardCard
-                        title="Estimated Time"
-                        value={`${(dashboardData.modules || []).reduce(
-                          (acc, m) => acc + (m.estimatedHours || 0),
-                          0
-                        )}h`}
-                        subtitle="Total learning time"
+                        title="Remaining Modules"
+                        value={`${
+                          (dashboardData.summary?.totalModules || 0) -
+                          (dashboardData.summary?.completedModules || 0)
+                        }`}
+                        subtitle="Modules to master"
                         icon={
-                          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="h-5 w-5 text-[#64748B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         }
