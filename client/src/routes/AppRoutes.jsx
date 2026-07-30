@@ -6,43 +6,23 @@ import MyCareer from "../pages/MyCareer";
 import LearningModules from "../pages/LearningModules";
 import ModuleDetails from "../pages/ModuleDetails";
 
-
-
-
-
-
-
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
 
       <Route element={<ProtectedRoute />}>
-        <Route
-          path="/student/dashboard"
-          element={<StudentDashboard />}
-        />
-
-        <Route
-          path="/student/career"
-          element={<MyCareer />}
-        />
-
-        <Route
-          path="/student/modules"
-          element={<LearningModules />}
-        />
+        <Route path="/" element={<Navigate to="/student/dashboard" replace />} />
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
+        <Route path="/my-career" element={<MyCareer />} />
+        <Route path="/student/career" element={<MyCareer />} />
+        <Route path="/learning-modules" element={<LearningModules />} />
+        <Route path="/student/modules" element={<LearningModules />} />
+        <Route path="/learning-modules/:moduleId" element={<ModuleDetails />} />
+        <Route path="/progress" element={<StudentDashboard />} />
       </Route>
 
-      <Route
-        path="/learning-modules/:moduleId"
-        element={<ModuleDetails />}
-      />
-
-      <Route
-        path="*"
-        element={<Navigate to="/login" replace />}
-      />
+      <Route path="*" element={<Navigate to="/student/dashboard" replace />} />
     </Routes>
   );
 }

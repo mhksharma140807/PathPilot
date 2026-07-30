@@ -4,13 +4,18 @@ const Module = require("../models/Module");
 
 const getMyProgress = async (req, res) => {
   try {
+    const studentId = req.user._id || req.user.id;
+
     const enrollment = await CareerEnrollment.findOne({
-      student: req.user._id,
+      student: studentId,
       status: "active",
     });
 
     if (!enrollment) {
-      return res.status(404).json({
+      return res.status(200).json({
+        career: null,
+        totalModules: 0,
+        progress: [],
         message: "No active career selected",
       });
     }
@@ -21,7 +26,7 @@ const getMyProgress = async (req, res) => {
     }).sort({ order: 1 });
 
     const progress = await ModuleProgress.find({
-      student: req.user._id,
+      student: studentId,
       career: enrollment.career,
     }).populate("module", "title description order estimatedHours");
 
@@ -40,10 +45,14 @@ const getMyProgress = async (req, res) => {
 
 const updateModuleProgress = async (req, res) => {
   try {
-    const { moduleId, status, progressPercentage } = req.body;
+    const studentId = req.user._id || req.user.id;
+    const { moduleId, status: inputStatus, progressPercentage: inputPercentage, progress: inputProgress } = req.body;
+
+    const computedPercentage = typeof inputPercentage === "number" ? inputPercentage : (typeof inputProgress === "number" ? inputProgress : 0);
+    const computedStatus = inputStatus || (computedPercentage >= 100 ? "completed" : computedPercentage > 0 ? "in_progress" : "not_started");
 
     const enrollment = await CareerEnrollment.findOne({
-      student: req.user._id,
+      student: studentId,
       status: "active",
     });
 
@@ -67,16 +76,16 @@ const updateModuleProgress = async (req, res) => {
 
     const progress = await ModuleProgress.findOneAndUpdate(
       {
-        student: req.user._id,
+        student: studentId,
         module: moduleId,
       },
       {
-        student: req.user._id,
+        student: studentId,
         career: enrollment.career,
         module: moduleId,
-        status,
-        progressPercentage,
-        completedAt: status === "completed" ? new Date() : null,
+        status: computedStatus,
+        progressPercentage: computedPercentage,
+        completedAt: computedStatus === "completed" ? new Date() : null,
       },
       {
         new: true,

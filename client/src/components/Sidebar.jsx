@@ -1,5 +1,4 @@
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -9,6 +8,12 @@ function Sidebar() {
     localStorage.removeItem("user");
     navigate("/login");
   };
+
+  const navItems = [
+    { label: "Dashboard", path: "/student/dashboard" },
+    { label: "My Career", path: "/my-career" },
+    { label: "Learning Modules", path: "/learning-modules" },
+  ];
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white md:flex md:flex-col">
@@ -23,33 +28,21 @@ function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 p-4">
-        <a
-          href="#"
-          className="block rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white"
-        >
-          Dashboard
-        </a>
-
-        <a
-          href="/student/career"
-          className="block rounded-xl px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100"
-        >
-          My Career
-        </a>
-
-        <a
-          href="/student/modules"
-          className="block rounded-xl px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100"
-        >
-          Learning Modules
-        </a>
-
-        <a
-          href="#"
-          className="block rounded-xl px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100"
-        >
-          Progress
-        </a>
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `block rounded-xl px-4 py-3 text-sm font-medium transition ${
+                isActive
+                  ? "bg-slate-900 text-white"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`
+            }
+          >
+            {item.label}
+          </NavLink>
+        ))}
       </nav>
 
       <div className="border-t border-slate-200 p-4">

@@ -62,7 +62,30 @@ const getModulesByCareer = async (req, res) => {
   }
 };
 
+// Get single module by ID
+const getModuleById = async (req, res) => {
+  try {
+    const module = await Module.findById(req.params.id);
+
+    if (!module) {
+      return res.status(404).json({
+        message: "Module not found",
+      });
+    }
+
+    res.status(200).json({
+      module,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch module details",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createModule,
   getModulesByCareer,
+  getModuleById,
 };

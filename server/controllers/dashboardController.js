@@ -4,14 +4,23 @@ const ModuleProgress = require("../models/ModuleProgress");
 
 const getStudentDashboard = async (req, res) => {
   try {
+    const studentId = req.user._id || req.user.id;
+
     const enrollment = await CareerEnrollment.findOne({
-      student: req.user._id,
+      student: studentId,
       status: "active",
     }).populate("career");
 
     if (!enrollment) {
-      return res.status(404).json({
-        message: "No active career selected",
+      return res.status(200).json({
+        hasEnrollment: false,
+        career: null,
+        summary: {
+          totalModules: 0,
+          completedModules: 0,
+          overallProgress: 0,
+        },
+        modules: [],
       });
     }
 
@@ -21,7 +30,7 @@ const getStudentDashboard = async (req, res) => {
     }).sort({ order: 1 });
 
     const progressRecords = await ModuleProgress.find({
-      student: req.user._id,
+      student: studentId,
       career: enrollment.career._id,
     });
 
@@ -63,6 +72,7 @@ const getStudentDashboard = async (req, res) => {
         : 0;
 
     res.status(200).json({
+      hasEnrollment: true,
       career: enrollment.career,
       summary: {
         totalModules,
