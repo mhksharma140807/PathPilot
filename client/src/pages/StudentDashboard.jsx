@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getStudentDashboard } from "../services/dashboardService";
+import { getRecommendedProject } from "../services/projectRecommendations";
 import DashboardCard from "../components/DashboardCard";
 import Sidebar from "../components/Sidebar";
 import ModuleCard from "../components/ModuleCard";
@@ -8,6 +9,8 @@ import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 import ProgressBar from "../components/ProgressBar";
+import CareerCompletion from "../components/CareerCompletion";
+import RecommendedProject from "../components/RecommendedProject";
 
 function StudentDashboard() {
   const navigate = useNavigate();
@@ -55,6 +58,17 @@ function StudentDashboard() {
   const nextUnfinishedModule = dashboardData?.modules?.find(
     (m) => (m.progressPercentage || m.progress || 0) < 100
   ) || dashboardData?.modules?.[0];
+
+  const overallProgress = dashboardData?.summary?.overallProgress || 0;
+  const isCareerCompleted = overallProgress >= 100 && (dashboardData?.summary?.totalModules || 0) > 0;
+  const recommendedProject = getRecommendedProject(dashboardData?.career);
+
+  const handleScrollToProject = () => {
+    const el = document.getElementById("recommended-project");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
@@ -108,70 +122,78 @@ function StudentDashboard() {
                 />
               ) : (
                 <>
-                  {/* Current Career Banner */}
-                  <section className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-6 text-white shadow-lg md:p-8">
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                      <div className="max-w-2xl">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700/50">
-                          <span className="h-2 w-2 rounded-full bg-[#10B981]"></span>
-                          Active Career Path
+                  {/* 1. Continue Learning or Career Completion Section */}
+                  {isCareerCompleted ? (
+                    <CareerCompletion
+                      career={dashboardData.career}
+                      summary={dashboardData.summary}
+                      onExploreProject={handleScrollToProject}
+                    />
+                  ) : (
+                    <section className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-6 text-white shadow-lg md:p-8">
+                      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="max-w-2xl">
+                          <div className="inline-flex items-center gap-2 rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700/50">
+                            <span className="h-2 w-2 rounded-full bg-[#10B981]"></span>
+                            Active Career Path
+                          </div>
+
+                          <h3 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl text-white">
+                            {dashboardData.career?.title || "Career Path"}
+                          </h3>
+
+                          <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                            {dashboardData.career?.overview ||
+                              dashboardData.career?.description ||
+                              "Build practical, showcase-ready skills across your structured learning modules."}
+                          </p>
+
+                          <div className="mt-6 flex flex-wrap items-center gap-4">
+                            <Link
+                              to={nextUnfinishedModule ? `/learning-modules/${nextUnfinishedModule.moduleId || nextUnfinishedModule._id}` : "/learning-modules"}
+                              className="inline-flex items-center gap-2 rounded-xl bg-[#4F46E5] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3730A3] shadow-md"
+                            >
+                              <span>Continue Learning</span>
+                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                              </svg>
+                            </Link>
+
+                            <Link
+                              to="/my-career"
+                              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                            >
+                              Change Path
+                            </Link>
+                          </div>
                         </div>
 
-                        <h3 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl text-white">
-                          {dashboardData.career?.title || "Career Path"}
-                        </h3>
-
-                        <p className="mt-3 text-sm leading-relaxed text-slate-300">
-                          {dashboardData.career?.overview ||
-                            dashboardData.career?.description ||
-                            "Build practical, showcase-ready skills across your structured learning modules."}
-                        </p>
-
-                        <div className="mt-6 flex flex-wrap items-center gap-4">
-                          <Link
-                            to={nextUnfinishedModule ? `/learning-modules/${nextUnfinishedModule.moduleId || nextUnfinishedModule._id}` : "/learning-modules"}
-                            className="inline-flex items-center gap-2 rounded-xl bg-[#4F46E5] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3730A3] shadow-md"
-                          >
-                            <span>Continue Learning</span>
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                          </Link>
-
-                          <Link
-                            to="/my-career"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                          >
-                            Change Path
-                          </Link>
+                        {/* Overall Progress Widget on Banner */}
+                        <div className="w-full md:w-64 rounded-2xl bg-slate-800/80 p-5 border border-slate-700/60 backdrop-blur-sm shrink-0">
+                          <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+                            <span>Career Progress</span>
+                            <span className="text-base font-extrabold text-white">
+                              {overallProgress}%
+                            </span>
+                          </div>
+                          <div className="mt-3">
+                            <ProgressBar progress={overallProgress} />
+                          </div>
+                          <div className="mt-4 flex justify-between text-xs text-slate-400 border-t border-slate-700/50 pt-3">
+                            <span>Completed: {dashboardData.summary?.completedModules || 0}</span>
+                            <span>Total: {dashboardData.summary?.totalModules || 0}</span>
+                          </div>
                         </div>
                       </div>
+                    </section>
+                  )}
 
-                      {/* Overall Progress Widget on Banner */}
-                      <div className="w-full md:w-64 rounded-2xl bg-slate-800/80 p-5 border border-slate-700/60 backdrop-blur-sm shrink-0">
-                        <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
-                          <span>Career Progress</span>
-                          <span className="text-base font-extrabold text-white">
-                            {dashboardData.summary?.overallProgress || 0}%
-                          </span>
-                        </div>
-                        <div className="mt-3">
-                          <ProgressBar progress={dashboardData.summary?.overallProgress || 0} />
-                        </div>
-                        <div className="mt-4 flex justify-between text-xs text-slate-400 border-t border-slate-700/50 pt-3">
-                          <span>Completed: {dashboardData.summary?.completedModules || 0}</span>
-                          <span>Total: {dashboardData.summary?.totalModules || 0}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Summary Metric Cards */}
+                  {/* 2. Progress Overview Metrics */}
                   <section>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                       <DashboardCard
                         title="Overall Progress"
-                        value={`${dashboardData.summary?.overallProgress || 0}%`}
+                        value={`${overallProgress}%`}
                         subtitle="Career path completion"
                         highlight={true}
                         icon={
@@ -205,10 +227,11 @@ function StudentDashboard() {
 
                       <DashboardCard
                         title="Remaining Modules"
-                        value={`${
+                        value={`${Math.max(
                           (dashboardData.summary?.totalModules || 0) -
-                          (dashboardData.summary?.completedModules || 0)
-                        }`}
+                          (dashboardData.summary?.completedModules || 0),
+                          0
+                        )}`}
                         subtitle="Modules to master"
                         icon={
                           <svg className="h-5 w-5 text-[#64748B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -219,7 +242,7 @@ function StudentDashboard() {
                     </div>
                   </section>
 
-                  {/* Modules Section */}
+                  {/* 3. Current Career Modules Section */}
                   <section>
                     <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
@@ -263,6 +286,14 @@ function StudentDashboard() {
                       </div>
                     )}
                   </section>
+
+                  {/* 4. Recommended Project Section */}
+                  {recommendedProject && (
+                    <RecommendedProject
+                      project={recommendedProject}
+                      careerTitle={dashboardData.career?.title || dashboardData.career?.name}
+                    />
+                  )}
                 </>
               )}
             </>
