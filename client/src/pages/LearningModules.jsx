@@ -234,6 +234,8 @@ function LearningModules() {
                     {filteredModules.map((module, index) => {
                       const mId = module._id || module.id;
                       const moduleProg = progressMap[mId] || 0;
+                      const firstIncomplete = filteredModules.find((m) => (progressMap[m._id || m.id] || 0) < 100);
+                      const isCurrent = firstIncomplete && (firstIncomplete._id || firstIncomplete.id) === mId;
 
                       return (
                         <ModuleCard
@@ -244,6 +246,7 @@ function LearningModules() {
                             progress: moduleProg,
                           }}
                           index={index}
+                          isCurrent={isCurrent}
                         />
                       );
                     })}
