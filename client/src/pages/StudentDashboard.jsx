@@ -9,6 +9,7 @@ import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 import ProgressBar from "../components/ProgressBar";
+import StatusBadge from "../components/StatusBadge";
 import CareerCompletion from "../components/CareerCompletion";
 import RecommendedProject from "../components/RecommendedProject";
 
@@ -242,7 +243,88 @@ function StudentDashboard() {
                     </div>
                   </section>
 
-                  {/* 3. Current Career Modules Section */}
+                  {/* 3. Continue Your Learning Focus Card */}
+                  {nextUnfinishedModule && !isCareerCompleted && (
+                    <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm md:p-8">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-5">
+                        <div>
+                          <span className="text-xs font-bold uppercase tracking-wider text-[#4F46E5]">
+                            Current Active Module
+                          </span>
+                          <h3 className="text-xl font-extrabold text-[#0F172A] mt-1">
+                            Continue Your Learning
+                          </h3>
+                        </div>
+                        <StatusBadge progress={nextUnfinishedModule.progressPercentage || 0} status={nextUnfinishedModule.status} />
+                      </div>
+
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="space-y-2 max-w-xl">
+                          <h4 className="text-lg font-bold text-[#0F172A]">
+                            {nextUnfinishedModule.title}
+                          </h4>
+                          {nextUnfinishedModule.description && (
+                            <p className="text-sm text-[#64748B] line-clamp-2">
+                              {nextUnfinishedModule.description}
+                            </p>
+                          )}
+                          <div className="pt-2 w-full md:w-80">
+                            <div className="flex justify-between text-xs font-semibold mb-1">
+                              <span className="text-[#64748B]">Module Progress</span>
+                              <span className="text-[#0F172A]">{nextUnfinishedModule.progressPercentage || 0}%</span>
+                            </div>
+                            <ProgressBar progress={nextUnfinishedModule.progressPercentage || 0} />
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/learning-modules/${nextUnfinishedModule.moduleId || nextUnfinishedModule._id}`)}
+                          className="inline-flex items-center gap-2 rounded-xl bg-[#4F46E5] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3730A3] shadow-md shrink-0"
+                        >
+                          <span>Continue Module</span>
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
+                        </button>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* 4. Career Snapshot Card */}
+                  <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm md:p-8">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                      <h3 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
+                        Career Path Snapshot
+                      </h3>
+                      <span className="text-xs font-semibold text-[#64748B]">
+                        {dashboardData.career?.title || "Enrolled Career"}
+                      </span>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 text-center">
+                      <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                        <p className="text-xs font-semibold uppercase text-[#64748B]">Active Track</p>
+                        <p className="text-base font-extrabold text-[#0F172A] mt-1 truncate">{dashboardData.career?.title || "Career Path"}</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                        <p className="text-xs font-semibold uppercase text-[#64748B]">Total Modules</p>
+                        <p className="text-base font-extrabold text-[#0F172A] mt-1">{dashboardData.summary?.totalModules || 0} Units</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                        <p className="text-xs font-semibold uppercase text-[#64748B]">Overall Readiness</p>
+                        <p className="text-base font-extrabold text-[#4F46E5] mt-1">{overallProgress}%</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                        <p className="text-xs font-semibold uppercase text-[#64748B]">Current Stage</p>
+                        <p className="text-base font-extrabold text-[#0F172A] mt-1 truncate">
+                          {isCareerCompleted ? "🎉 Completed" : nextUnfinishedModule ? nextUnfinishedModule.title : "Not Started"}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* 5. Modules Grid */}
                   <section>
                     <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
