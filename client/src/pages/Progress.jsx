@@ -9,6 +9,7 @@ import StatusBadge from "../components/StatusBadge";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
+import CareerRoadmap from "../components/CareerRoadmap";
 
 function Progress() {
   const navigate = useNavigate();
@@ -187,70 +188,12 @@ function Progress() {
                 />
               </section>
 
-              {/* Currently Learning / Focus Section */}
-              {currentLearningModule && (
-                <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm md:p-8">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <span className="text-xs font-semibold uppercase tracking-wider text-[#4F46E5]">
-                        Currently Learning
-                      </span>
-                      <h3 className="mt-1 text-xl font-extrabold text-[#0F172A]">
-                        {currentLearningModule.title}
-                      </h3>
-                      <p className="mt-1 text-sm text-[#64748B] line-clamp-1">
-                        {currentLearningModule.description}
-                      </p>
-                    </div>
-
-                    <StatusBadge progress={currentLearningModule.progressPercentage || 0} status={currentLearningModule.status} />
-                  </div>
-
-                  <div className="mt-5">
-                    <div className="mb-2 flex items-center justify-between text-xs">
-                      <span className="font-semibold text-[#64748B]">Module Progress</span>
-                      <span className="font-bold text-[#0F172A]">{currentLearningModule.progressPercentage || 0}%</span>
-                    </div>
-                    <ProgressBar progress={currentLearningModule.progressPercentage || 0} />
-                  </div>
-
-                  <div className="mt-6 flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/learning-modules/${currentLearningModule.moduleId || currentLearningModule._id}`)}
-                      className="inline-flex items-center gap-2 rounded-xl bg-[#4F46E5] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#3730A3] shadow-md"
-                    >
-                      <span>Continue Learning</span>
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
-                    </button>
-                  </div>
-                </section>
-              )}
-
-              {/* Complete Module Progress Breakdown */}
-              <section>
-                <div className="mb-6 flex items-center justify-between">
-                  <h3 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
-                    Module Detailed Breakdown
-                  </h3>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2">
-                  {modules.map((module, index) => (
-                    <ModuleCard
-                      key={module.moduleId || module._id || index}
-                      module={{
-                        ...module,
-                        _id: module.moduleId || module._id,
-                        progress: module.progressPercentage || 0,
-                      }}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              </section>
+              {/* Career Roadmap & Skill Progress */}
+              <CareerRoadmap
+                career={data.career}
+                modules={modules}
+                overallProgress={overallProgress}
+              />
             </>
           )}
         </div>

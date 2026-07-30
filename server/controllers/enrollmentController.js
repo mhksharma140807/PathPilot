@@ -18,22 +18,20 @@ const selectCareer = async (req, res) => {
       });
     }
 
-    const existingEnrollment = await CareerEnrollment.findOne({
+    let enrollment = await CareerEnrollment.findOne({
       student: studentId,
     });
 
-    if (existingEnrollment) {
-      return res.status(400).json({
-        message: "You already have an active career",
-        enrollment: existingEnrollment,
-        career: existingEnrollment.career,
+    if (enrollment) {
+      enrollment.career = career._id;
+      enrollment.status = "active";
+      await enrollment.save();
+    } else {
+      enrollment = await CareerEnrollment.create({
+        student: studentId,
+        career: career._id,
       });
     }
-
-    const enrollment = await CareerEnrollment.create({
-      student: studentId,
-      career: career._id,
-    });
 
     const populatedEnrollment = await CareerEnrollment.findById(
       enrollment._id
