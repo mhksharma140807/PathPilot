@@ -126,16 +126,26 @@ function MyCareer() {
                       )}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => navigate("/student/dashboard")}
-                      className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-[#4F46E5] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3730A3] shadow-md"
-                    >
-                      <span>View Dashboard</span>
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
-                    </button>
+                    <div className="flex flex-wrap items-center gap-3 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => navigate("/learning-modules")}
+                        className="inline-flex items-center gap-2 rounded-xl bg-[#4F46E5] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3730A3] shadow-md"
+                      >
+                        <span>Start Learning Modules</span>
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => navigate("/student/dashboard")}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                      >
+                        View Dashboard
+                      </button>
+                    </div>
                   </div>
                 </section>
               )}
