@@ -11,6 +11,12 @@ function StatusBadge({ status, progress }) {
   } else if (effStatus === "in_progress" || effProgress > 0) {
     label = "In Progress";
     bgClass = "bg-indigo-50 text-[#4F46E5] border-indigo-200/60";
+  } else if (effStatus === "locked") {
+    label = "Locked";
+    bgClass = "bg-slate-100 text-slate-500 border-slate-200";
+  } else if (effStatus === "available") {
+    label = "Available";
+    bgClass = "bg-slate-100 text-[#0F172A] border-slate-300";
   }
 
   return (

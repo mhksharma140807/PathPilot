@@ -40,43 +40,53 @@ function CareerRoadmap({ career, modules, overallProgress }) {
           </div>
         </div>
 
-        {/* Vertical/Horizontal Stage Tracker */}
-        <div className="relative space-y-4">
+        {/* Vertical Connected Stage Timeline Tracker */}
+        <div className="relative space-y-6 before:absolute before:left-5 before:top-6 before:bottom-6 before:w-0.5 before:bg-slate-200/80">
           {modules.map((mod, idx) => {
             const prog = mod.progressPercentage || 0;
-            const status = mod.status || (prog >= 100 ? "completed" : prog > 0 ? "in_progress" : "not_started");
-            const isCompleted = status === "completed";
+            const isCompleted = mod.status === "completed" || prog >= 100;
+            const isInProgress = mod.status === "in_progress" || (prog > 0 && prog < 100);
+
+            // Determine Sequential Locking: First module or previous module completed makes it available
+            const isPreviousCompleted = idx === 0 || (modules[idx - 1]?.status === "completed" || (modules[idx - 1]?.progressPercentage || 0) >= 100);
+            const isLocked = !isCompleted && !isInProgress && !isPreviousCompleted;
+
+            const computedStatus = isCompleted ? "completed" : isInProgress ? "in_progress" : isLocked ? "locked" : "available";
 
             return (
               <div
                 key={mod.moduleId || mod._id || idx}
-                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border p-5 transition ${
-                  status === "in_progress"
-                    ? "border-[#4F46E5]/40 bg-indigo-50/30 ring-2 ring-[#4F46E5]/10"
+                className={`relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border p-5 transition z-10 ${
+                  isInProgress
+                    ? "border-[#4F46E5]/40 bg-indigo-50/40 ring-2 ring-[#4F46E5]/10"
                     : isCompleted
                     ? "border-emerald-200/80 bg-emerald-50/30"
+                    : isLocked
+                    ? "border-slate-200/60 bg-slate-50/50 opacity-75"
                     : "border-slate-200/80 bg-white"
                 }`}
               >
                 <div className="flex items-start gap-4">
                   <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-bold text-sm shadow-sm ${
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-bold text-sm shadow-sm transition ${
                       isCompleted
                         ? "bg-[#10B981] text-white"
-                        : status === "in_progress"
+                        : isInProgress
                         ? "bg-[#4F46E5] text-white"
-                        : "bg-slate-100 text-[#64748B]"
+                        : isLocked
+                        ? "bg-slate-200 text-slate-400"
+                        : "bg-slate-900 text-white"
                     }`}
                   >
-                    {idx + 1}
+                    {isCompleted ? "✓" : isLocked ? "🔒" : idx + 1}
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-[#0F172A] text-base">
-                        {mod.title}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className={`font-bold text-base ${isLocked ? "text-[#64748B]" : "text-[#0F172A]"}`}>
+                        Module {idx + 1}: {mod.title}
                       </h4>
-                      <StatusBadge progress={prog} status={status} />
+                      <StatusBadge progress={prog} status={computedStatus} />
                     </div>
                     {mod.description && (
                       <p className="mt-1 text-xs text-[#64748B] line-clamp-2">
@@ -95,14 +105,17 @@ function CareerRoadmap({ career, modules, overallProgress }) {
 
                   <button
                     type="button"
+                    disabled={isLocked}
                     onClick={() => navigate(`/learning-modules/${mod.moduleId || mod._id}`)}
                     className={`w-full rounded-xl py-2 px-3 text-xs font-bold transition mt-2 ${
                       isCompleted
                         ? "bg-slate-100 text-[#0F172A] hover:bg-slate-200"
-                        : "bg-[#4F46E5] text-white hover:bg-[#3730A3]"
+                        : isLocked
+                        ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200/60"
+                        : "bg-[#4F46E5] text-white hover:bg-[#3730A3] shadow-sm"
                     }`}
                   >
-                    {isCompleted ? "Review Stage" : prog > 0 ? "Continue Stage" : "Start Stage"}
+                    {isCompleted ? "Review Module" : isInProgress ? "Continue Module" : isLocked ? "Locked" : "Start Module"}
                   </button>
                 </div>
               </div>
