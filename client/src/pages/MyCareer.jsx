@@ -4,6 +4,7 @@ import { getCareers, getMyCareer, selectCareer } from "../services/careerService
 import Sidebar from "../components/Sidebar";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
+import EmptyState from "../components/EmptyState";
 
 function MyCareer() {
   const navigate = useNavigate();
@@ -68,123 +69,163 @@ function MyCareer() {
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar />
 
-      <main className="min-w-0 flex-1 p-6 md:p-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-8">
-            <p className="text-sm font-medium text-slate-500">PathPilot</p>
-            <h1 className="mt-1 text-3xl font-bold text-slate-900">
+      <main className="min-w-0 flex-1">
+        {/* Top Header */}
+        <header className="border-b border-slate-200/80 bg-white px-6 py-5 md:px-8">
+          <div className="mx-auto max-w-7xl">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Career Catalog
+            </p>
+            <h1 className="mt-1 text-2xl font-extrabold text-slate-900 tracking-tight">
               My Career Path
             </h1>
-            <p className="mt-2 text-sm text-slate-500">
-              Choose the career path you want to build your learning journey around.
+            <p className="mt-1 text-sm text-slate-500">
+              Select or change your target career path to tailor your module curriculum.
             </p>
           </div>
+        </header>
 
-          {loading && <LoadingState message="Loading career paths..." />}
+        <div className="mx-auto max-w-7xl px-6 py-8 md:px-8 space-y-8">
+          {loading && <LoadingState message="Loading available career paths..." />}
 
           {!loading && error && (
-            <div className="mb-6">
-              <ErrorState message={error} onRetry={loadCareerData} />
-            </div>
+            <ErrorState message={error} onRetry={loadCareerData} />
           )}
 
-          {!loading && (
+          {!loading && !error && (
             <>
+              {/* Highlight Active Enrolled Career */}
               {currentCareer && (
-                <section className="mb-8 rounded-2xl bg-slate-900 p-6 text-white md:p-8 shadow-sm">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                      <span className="inline-block rounded-lg bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
-                        Active Enrolled Path
-                      </span>
-                      <h2 className="mt-2 text-2xl font-bold">
+                <section className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-md md:p-8">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="max-w-2xl">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300 border border-emerald-500/30">
+                        <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                        Active Enrolled Career Path
+                      </div>
+
+                      <h2 className="mt-3 text-2xl font-extrabold sm:text-3xl">
                         {currentCareer.title || currentCareer.name}
                       </h2>
-                      <p className="mt-2 max-w-2xl text-sm text-slate-300">
+
+                      <p className="mt-2 text-sm leading-relaxed text-slate-300">
                         {currentCareer.overview || currentCareer.description}
                       </p>
+
+                      {currentCareer.skills && currentCareer.skills.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {currentCareer.skills.map((skill, idx) => (
+                            <span
+                              key={idx}
+                              className="rounded-lg bg-slate-800/80 border border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-300"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <button
                       type="button"
                       onClick={() => navigate("/student/dashboard")}
-                      className="shrink-0 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100"
+                      className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 transition hover:bg-slate-100 shadow-sm"
                     >
-                      Go to Dashboard
+                      <span>View Dashboard</span>
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
                     </button>
                   </div>
                 </section>
               )}
 
+              {/* Available Paths Grid */}
               <section>
-                <h2 className="mb-4 text-xl font-bold text-slate-900">
-                  Available Career Paths
-                </h2>
+                <div className="mb-6">
+                  <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                    Explore Career Options
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Switching paths updates your enrolled curriculum and module progress view.
+                  </p>
+                </div>
 
-                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                  {careers.map((career) => {
-                    const isSelected = currentCareer?._id === career._id;
+                {careers.length === 0 ? (
+                  <EmptyState
+                    title="No career paths available"
+                    description="No career paths are currently listed in the database."
+                  />
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {careers.map((career) => {
+                      const isSelected = currentCareer?._id === career._id;
 
-                    return (
-                      <article
-                        key={career._id}
-                        className={`flex flex-col justify-between rounded-2xl border p-6 shadow-sm transition ${
-                          isSelected
-                            ? "border-slate-900 bg-white ring-2 ring-slate-900/10"
-                            : "border-slate-200 bg-white hover:border-slate-300"
-                        }`}
-                      >
-                        <div>
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-slate-900">
-                              {career.title || career.name}
-                            </h3>
-                            {isSelected && (
-                              <span className="rounded-full bg-slate-900 px-2.5 py-0.5 text-xs font-semibold text-white">
-                                Selected
-                              </span>
+                      return (
+                        <article
+                          key={career._id}
+                          className={`group flex flex-col justify-between rounded-2xl border p-6 shadow-sm transition-all duration-200 ${
+                            isSelected
+                              ? "border-slate-900 bg-white ring-2 ring-slate-900/10 shadow-md"
+                              : "border-slate-200/80 bg-white hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-start justify-between gap-2">
+                              <h3 className="text-lg font-bold text-slate-900 group-hover:text-slate-800">
+                                {career.title || career.name}
+                              </h3>
+                              {isSelected && (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2.5 py-0.5 text-xs font-semibold text-white shrink-0">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                                  Enrolled
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="mt-3 text-sm leading-relaxed text-slate-500">
+                              {career.description ||
+                                career.overview ||
+                                "Follow a structured learning path designed for this career field."}
+                            </p>
+
+                            {career.skills && career.skills.length > 0 && (
+                              <div className="mt-4 flex flex-wrap gap-1.5">
+                                {career.skills.map((skill, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 border border-slate-200/50"
+                                  >
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
                             )}
                           </div>
 
-                          <p className="mt-3 text-sm leading-6 text-slate-500">
-                            {career.description ||
-                              "Follow a structured learning path designed for this career."}
-                          </p>
-
-                          {career.skills && career.skills.length > 0 && (
-                            <div className="mt-4 flex flex-wrap gap-1.5">
-                              {career.skills.map((skill, idx) => (
-                                <span
-                                  key={idx}
-                                  className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        <button
-                          type="button"
-                          disabled={selectingId === career._id || isSelected}
-                          onClick={() => handleSelectCareer(career._id)}
-                          className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                            isSelected
-                              ? "bg-slate-100 text-slate-400 cursor-default"
-                              : "bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-60"
-                          }`}
-                        >
-                          {selectingId === career._id
-                            ? "Selecting..."
-                            : isSelected
-                            ? "Current Career Path"
-                            : "Select Career Path"}
-                        </button>
-                      </article>
-                    );
-                  })}
-                </div>
+                          <div className="mt-6 pt-4 border-t border-slate-100">
+                            <button
+                              type="button"
+                              disabled={selectingId === career._id || isSelected}
+                              onClick={() => handleSelectCareer(career._id)}
+                              className={`w-full rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                                isSelected
+                                  ? "bg-slate-100 text-slate-400 cursor-default"
+                                  : "bg-slate-900 text-white hover:bg-slate-800 shadow-sm disabled:opacity-60"
+                              }`}
+                            >
+                              {selectingId === career._id
+                                ? "Selecting..."
+                                : isSelected
+                                ? "Current Active Path"
+                                : "Select Career Path"}
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
               </section>
             </>
           )}

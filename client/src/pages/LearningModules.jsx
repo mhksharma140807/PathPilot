@@ -7,6 +7,7 @@ import ModuleCard from "../components/ModuleCard";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
+import ProgressBar from "../components/ProgressBar";
 
 function LearningModules() {
   const [modules, setModules] = useState([]);
@@ -14,6 +15,7 @@ function LearningModules() {
   const [progressMap, setProgressMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState("all");
 
   const loadData = async () => {
     try {
@@ -77,27 +79,53 @@ function LearningModules() {
     loadData();
   }, []);
 
+  const totalCount = modules.length;
+  const completedCount = modules.filter(
+    (m) => (progressMap[m._id || m.id] || 0) >= 100
+  ).length;
+  const inProgressCount = modules.filter((m) => {
+    const p = progressMap[m._id || m.id] || 0;
+    return p > 0 && p < 100;
+  }).length;
+  const overallPct =
+    totalCount > 0
+      ? Math.round(
+          (modules.reduce((acc, m) => acc + (progressMap[m._id || m.id] || 0), 0) /
+            (totalCount * 100)) *
+            100
+        )
+      : 0;
+
+  const filteredModules = modules.filter((m) => {
+    const p = progressMap[m._id || m.id] || 0;
+    if (filter === "completed") return p >= 100;
+    if (filter === "in_progress") return p > 0 && p < 100;
+    if (filter === "not_started") return p === 0;
+    return true;
+  });
+
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar />
 
       <main className="min-w-0 flex-1">
-        <header className="border-b border-slate-200 bg-white px-6 py-5 md:px-8">
+        {/* Top Header */}
+        <header className="border-b border-slate-200/80 bg-white px-6 py-5 md:px-8">
           <div className="mx-auto max-w-7xl">
-            <p className="text-sm font-medium text-slate-500">Learning Path</p>
-
-            <h1 className="mt-1 text-2xl font-bold text-slate-900">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Curriculum Path
+            </p>
+            <h1 className="mt-1 text-2xl font-extrabold text-slate-900 tracking-tight">
               Learning Modules
             </h1>
-
-            <p className="mt-2 text-sm text-slate-500">
-              Follow your career path step by step and build practical skills.
+            <p className="mt-1 text-sm text-slate-500">
+              Structured modules designed for your enrolled career track.
             </p>
           </div>
         </header>
 
         <div className="mx-auto max-w-7xl px-6 py-8 md:px-8 space-y-8">
-          {loading && <LoadingState message="Loading your learning modules..." />}
+          {loading && <LoadingState message="Loading learning modules..." />}
 
           {!loading && error && (
             <ErrorState message={error} onRetry={loadData} />
@@ -106,51 +134,122 @@ function LearningModules() {
           {!loading && !error && !career && (
             <EmptyState
               title="No Active Career Selected"
-              description="Please select a career path to view its learning modules."
-              actionText="Select a Career"
+              description="Please select a career path first to view its learning modules."
+              actionText="Select a Career Path"
               actionLink="/my-career"
             />
           )}
 
           {!loading && !error && career && (
             <>
-              <section className="rounded-2xl bg-slate-900 p-6 text-white md:p-8">
-                <p className="text-sm text-slate-300">Current Career Path</p>
+              {/* Career Curriculum Overview Card */}
+              <section className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-md md:p-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="max-w-2xl">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700/50">
+                      Enrolled Path
+                    </span>
 
-                <h2 className="mt-2 text-2xl font-bold">
-                  {career.title || career.name || "Career Path"}
-                </h2>
+                    <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+                      {career.title || career.name || "Career Path"}
+                    </h2>
 
-                <p className="mt-2 text-sm text-slate-300">
-                  Complete these modules to progress through your selected career.
-                </p>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                      Master each learning module below to build complete domain proficiency.
+                    </p>
+                  </div>
+
+                  <div className="w-full md:w-64 rounded-2xl bg-slate-800/80 p-5 border border-slate-700/60 backdrop-blur-sm shrink-0">
+                    <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+                      <span>Curriculum Completion</span>
+                      <span className="text-base font-extrabold text-white">{overallPct}%</span>
+                    </div>
+                    <div className="mt-3">
+                      <ProgressBar progress={overallPct} />
+                    </div>
+                    <div className="mt-4 flex justify-between text-xs text-slate-400 border-t border-slate-700/50 pt-3">
+                      <span>Completed: {completedCount}</span>
+                      <span>Total: {totalCount}</span>
+                    </div>
+                  </div>
+                </div>
               </section>
 
-              {modules.length === 0 ? (
-                <EmptyState
-                  title="No modules available yet"
-                  description="Learning modules will appear here once added to this career path."
-                />
-              ) : (
-                <div className="grid gap-5 md:grid-cols-2">
-                  {modules.map((module, index) => {
-                    const mId = module._id || module.id;
-                    const moduleProg = progressMap[mId] || 0;
+              {/* Modules Filter & Grid */}
+              <section>
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                    Modules Overview ({filteredModules.length})
+                  </h3>
 
-                    return (
-                      <ModuleCard
-                        key={mId || index}
-                        module={{
-                          ...module,
-                          _id: mId,
-                          progress: moduleProg,
-                        }}
-                        index={index}
-                      />
-                    );
-                  })}
+                  {/* Filter Tabs */}
+                  <div className="inline-flex rounded-xl bg-slate-200/70 p-1 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => setFilter("all")}
+                      className={`rounded-lg px-3 py-1.5 transition ${
+                        filter === "all"
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      All ({totalCount})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFilter("in_progress")}
+                      className={`rounded-lg px-3 py-1.5 transition ${
+                        filter === "in_progress"
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      In Progress ({inProgressCount})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFilter("completed")}
+                      className={`rounded-lg px-3 py-1.5 transition ${
+                        filter === "completed"
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      Completed ({completedCount})
+                    </button>
+                  </div>
                 </div>
-              )}
+
+                {filteredModules.length === 0 ? (
+                  <EmptyState
+                    title="No modules match filter"
+                    description={
+                      modules.length === 0
+                        ? "Learning modules will appear here once added to this career path."
+                        : "No modules currently match the selected status filter."
+                    }
+                  />
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {filteredModules.map((module, index) => {
+                      const mId = module._id || module.id;
+                      const moduleProg = progressMap[mId] || 0;
+
+                      return (
+                        <ModuleCard
+                          key={mId || index}
+                          module={{
+                            ...module,
+                            _id: mId,
+                            progress: moduleProg,
+                          }}
+                          index={index}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
             </>
           )}
         </div>

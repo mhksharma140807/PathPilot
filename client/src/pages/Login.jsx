@@ -21,58 +21,75 @@ function Login() {
   };
 
   const handleSubmit = async (event) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  setError("");
-  setLoading(true);
+    setError("");
+    setLoading(true);
 
-  try {
-    const response = await loginUser(
-      formData.email,
-      formData.password
-    );
-
-    localStorage.setItem("token", response.token);
-    localStorage.setItem("user", JSON.stringify(response.user));
-
-    if (response.user.role === "student") {
-      navigate("/student/dashboard");
-    } else {
-      setError(
-        "This dashboard is currently available for students."
+    try {
+      const response = await loginUser(
+        formData.email,
+        formData.password
       );
-    }
-  } catch (error) {
-    setError(
-      error.message || "Login failed. Please check your credentials."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">
-            Welcome to PathPilot
-          </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
-            Sign in to continue your career learning journey.
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("user", JSON.stringify(response.user));
+
+      if (response.user.role === "student") {
+        navigate("/student/dashboard");
+      } else {
+        setError(
+          "This dashboard is currently available for students."
+        );
+      }
+    } catch (error) {
+      setError(
+        error.message || "Login failed. Please check your credentials."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-12">
+      {/* Brand Header */}
+      <div className="mb-8 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-2xl font-bold text-white shadow-md">
+          P
+        </div>
+        <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          PathPilot
+        </h1>
+        <p className="mt-1 text-sm font-medium text-slate-500">
+          Career Learning & Skill Development Ecosystem
+        </p>
+      </div>
+
+      {/* Main Login Card */}
+      <div className="w-full max-w-md rounded-3xl border border-slate-200/80 bg-white p-8 shadow-sm transition hover:shadow-md md:p-10">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-slate-900">
+            Student Sign In
+          </h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Access your personalized learning path & progress.
           </p>
         </div>
 
         {error && (
-          <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {error}
+          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200/80 bg-red-50/80 p-4 text-sm text-red-700">
+            <svg className="h-5 w-5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="leading-snug">{error}</div>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-              Email
+            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700">
+              Email Address
             </label>
 
             <input
@@ -80,14 +97,14 @@ function Login() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter your email"
+              placeholder="student@example.com"
               required
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700">
               Password
             </label>
 
@@ -96,24 +113,26 @@ function Login() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter your password"
+              placeholder="••••••••"
               required
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl bg-slate-900 px-4 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? "Signing in..." : "Sign In to Dashboard"}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-slate-500">
-          PathPilot · Career Learning Ecosystem
-        </p>
+        <div className="mt-8 border-t border-slate-100 pt-6 text-center">
+          <p className="text-xs text-slate-400">
+            Powered by PathPilot Learning Platform
+          </p>
+        </div>
       </div>
     </div>
   );
