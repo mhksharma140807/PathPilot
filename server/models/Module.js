@@ -32,6 +32,22 @@ const moduleSchema = new mongoose.Schema(
       min: 0,
     },
 
+    objectives: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+
+    lessons: [
+      {
+        title: { type: String, required: true, trim: true },
+        duration: { type: String, default: "15 mins" },
+        content: { type: String, required: true },
+        keyTakeaway: { type: String, default: "" },
+      },
+    ],
+
     isActive: {
       type: Boolean,
       default: true,
