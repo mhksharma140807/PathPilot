@@ -1,6 +1,6 @@
 function ProgressBar({ progress = 0, className = "" }) {
   const clamped = Math.min(Math.max(Number(progress) || 0, 0), 100);
-  const barColor = clamped >= 100 ? "bg-emerald-500" : "bg-slate-900";
+  const barColor = clamped >= 100 ? "bg-[#10B981]" : "bg-[#4F46E5]";
 
   return (
     <div className={`h-2.5 w-full overflow-hidden rounded-full bg-slate-100 p-0.5 ${className}`}>

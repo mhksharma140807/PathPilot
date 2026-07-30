@@ -57,17 +57,17 @@ function Sidebar() {
   ];
 
   const sidebarContent = (
-    <div className="flex h-full flex-col justify-between">
+    <div className="flex h-full flex-col justify-between bg-[#0F172A] text-white">
       <div>
-        <div className="flex items-center gap-3 border-b border-slate-200/80 px-6 py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white font-bold text-lg shadow-sm">
+        <div className="flex items-center gap-3 border-b border-slate-800 px-6 py-5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4F46E5] text-white font-bold text-lg shadow-md">
             P
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-white tracking-tight">
               PathPilot
             </h1>
-            <p className="text-xs font-medium text-slate-500">
+            <p className="text-xs font-medium text-cyan-400">
               Career Ecosystem
             </p>
           </div>
@@ -82,8 +82,8 @@ function Sidebar() {
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
                   isActive
-                    ? "bg-slate-900 text-white shadow-sm"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    ? "bg-[#4F46E5] text-white shadow-md"
+                    : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
                 }`
               }
             >
@@ -94,16 +94,16 @@ function Sidebar() {
         </nav>
       </div>
 
-      <div className="border-t border-slate-200/80 p-4">
-        <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3 border border-slate-100">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+      <div className="border-t border-slate-800 p-4">
+        <div className="flex items-center gap-3 rounded-xl bg-slate-800/60 p-3 border border-slate-700/50">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#4F46E5] text-xs font-bold text-white">
             {userInitial}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-bold text-slate-900">
+            <p className="truncate text-sm font-bold text-white">
               {userName}
             </p>
-            <p className="truncate text-xs text-slate-500">
+            <p className="truncate text-xs text-slate-400">
               {userEmail || "Student Account"}
             </p>
           </div>
@@ -112,7 +112,7 @@ function Sidebar() {
         <button
           type="button"
           onClick={handleLogout}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-red-50 hover:border-red-200 hover:text-red-600"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700/60 bg-slate-800/40 px-4 py-2.5 text-xs font-semibold text-slate-300 transition hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -126,23 +126,23 @@ function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-slate-200/80 bg-white md:block">
+      <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-[#0F172A] md:block">
         {sidebarContent}
       </aside>
 
       {/* Mobile Bar */}
-      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden">
+      <div className="flex items-center justify-between border-b border-slate-800 bg-[#0F172A] px-4 py-3 text-white md:hidden">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white font-bold text-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#4F46E5] text-white font-bold text-sm">
             P
           </div>
-          <span className="font-bold text-slate-900">PathPilot</span>
+          <span className="font-bold text-white">PathPilot</span>
         </div>
 
         <button
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"
+          className="rounded-lg p-2 text-slate-300 hover:bg-slate-800"
           aria-label="Toggle menu"
         >
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -157,7 +157,7 @@ function Sidebar() {
 
       {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="border-b border-slate-200 bg-white p-4 md:hidden shadow-lg">
+        <div className="border-b border-slate-800 bg-[#0F172A] md:hidden shadow-lg">
           {sidebarContent}
         </div>
       )}

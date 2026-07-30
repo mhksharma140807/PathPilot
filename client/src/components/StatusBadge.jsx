@@ -10,7 +10,7 @@ function StatusBadge({ status, progress }) {
     bgClass = "bg-emerald-50 text-emerald-700 border-emerald-200/60";
   } else if (effStatus === "in_progress" || effProgress > 0) {
     label = "In Progress";
-    bgClass = "bg-blue-50 text-blue-700 border-blue-200/60";
+    bgClass = "bg-indigo-50 text-[#4F46E5] border-indigo-200/60";
   }
 
   return (
@@ -20,9 +20,9 @@ function StatusBadge({ status, progress }) {
       <span
         className={`h-1.5 w-1.5 rounded-full ${
           label === "Completed"
-            ? "bg-emerald-500"
+            ? "bg-[#10B981]"
             : label === "In Progress"
-            ? "bg-blue-500"
+            ? "bg-[#4F46E5]"
             : "bg-slate-400"
         }`}
       />

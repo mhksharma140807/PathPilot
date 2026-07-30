@@ -57,7 +57,7 @@ function StudentDashboard() {
   ) || dashboardData?.modules?.[0];
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-[#F8FAFC]">
       <Sidebar />
 
       <main className="min-w-0 flex-1">
@@ -65,20 +65,20 @@ function StudentDashboard() {
         <header className="border-b border-slate-200/80 bg-white px-6 py-5 md:px-8">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                 Student Workspace
               </p>
-              <h2 className="mt-1 text-2xl font-extrabold text-slate-900 tracking-tight">
+              <h2 className="mt-1 text-2xl font-extrabold text-[#0F172A] tracking-tight">
                 Welcome back, {userName}
               </h2>
             </div>
 
             <div className="flex items-center gap-3">
               <div className="hidden sm:block text-right">
-                <p className="text-sm font-bold text-slate-900">{userName}</p>
-                <p className="text-xs text-slate-500">Student Learner</p>
+                <p className="text-sm font-bold text-[#0F172A]">{userName}</p>
+                <p className="text-xs text-[#64748B]">Student Learner</p>
               </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#4F46E5] text-sm font-bold text-white shadow-sm">
                 {userInitial}
               </div>
             </div>
@@ -109,15 +109,15 @@ function StudentDashboard() {
               ) : (
                 <>
                   {/* Current Career Banner */}
-                  <section className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-md md:p-8">
+                  <section className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-6 text-white shadow-lg md:p-8">
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                       <div className="max-w-2xl">
                         <div className="inline-flex items-center gap-2 rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700/50">
-                          <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                          <span className="h-2 w-2 rounded-full bg-[#10B981]"></span>
                           Active Career Path
                         </div>
 
-                        <h3 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+                        <h3 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl text-white">
                           {dashboardData.career?.title || "Career Path"}
                         </h3>
 
@@ -130,7 +130,7 @@ function StudentDashboard() {
                         <div className="mt-6 flex flex-wrap items-center gap-4">
                           <Link
                             to={nextUnfinishedModule ? `/learning-modules/${nextUnfinishedModule.moduleId || nextUnfinishedModule._id}` : "/learning-modules"}
-                            className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 transition hover:bg-slate-100 shadow-sm"
+                            className="inline-flex items-center gap-2 rounded-xl bg-[#4F46E5] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3730A3] shadow-md"
                           >
                             <span>Continue Learning</span>
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,6 +173,7 @@ function StudentDashboard() {
                         title="Overall Progress"
                         value={`${dashboardData.summary?.overallProgress || 0}%`}
                         subtitle="Career path completion"
+                        highlight={true}
                         icon={
                           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -196,7 +197,7 @@ function StudentDashboard() {
                         value={`${dashboardData.summary?.completedModules || 0}`}
                         subtitle="Fully mastered modules"
                         icon={
-                          <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="h-5 w-5 text-[#10B981]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         }
@@ -222,17 +223,17 @@ function StudentDashboard() {
                   <section>
                     <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
-                        <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                        <h3 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
                           Your Modules
                         </h3>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-[#64748B]">
                           Step-by-step curriculum for {dashboardData.career?.title || "your path"}.
                         </p>
                       </div>
 
                       <Link
                         to="/learning-modules"
-                        className="inline-flex items-center gap-1 text-sm font-bold text-slate-900 hover:text-slate-700 transition"
+                        className="inline-flex items-center gap-1 text-sm font-bold text-[#4F46E5] hover:text-[#3730A3] transition"
                       >
                         <span>View All Modules</span>
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

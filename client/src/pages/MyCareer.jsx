@@ -66,20 +66,20 @@ function MyCareer() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-[#F8FAFC]">
       <Sidebar />
 
       <main className="min-w-0 flex-1">
         {/* Top Header */}
         <header className="border-b border-slate-200/80 bg-white px-6 py-5 md:px-8">
           <div className="mx-auto max-w-7xl">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
               Career Catalog
             </p>
-            <h1 className="mt-1 text-2xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="mt-1 text-2xl font-extrabold text-[#0F172A] tracking-tight">
               My Career Path
             </h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-[#64748B]">
               Select or change your target career path to tailor your module curriculum.
             </p>
           </div>
@@ -96,15 +96,15 @@ function MyCareer() {
             <>
               {/* Highlight Active Enrolled Career */}
               {currentCareer && (
-                <section className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-md md:p-8">
+                <section className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-6 text-white shadow-lg md:p-8">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="max-w-2xl">
-                      <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300 border border-emerald-500/30">
-                        <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                      <div className="inline-flex items-center gap-2 rounded-full bg-[#10B981]/20 px-3 py-1 text-xs font-semibold text-emerald-300 border border-[#10B981]/30">
+                        <span className="h-2 w-2 rounded-full bg-[#10B981]"></span>
                         Active Enrolled Career Path
                       </div>
 
-                      <h2 className="mt-3 text-2xl font-extrabold sm:text-3xl">
+                      <h2 className="mt-3 text-2xl font-extrabold sm:text-3xl text-white">
                         {currentCareer.title || currentCareer.name}
                       </h2>
 
@@ -129,7 +129,7 @@ function MyCareer() {
                     <button
                       type="button"
                       onClick={() => navigate("/student/dashboard")}
-                      className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 transition hover:bg-slate-100 shadow-sm"
+                      className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-[#4F46E5] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#3730A3] shadow-md"
                     >
                       <span>View Dashboard</span>
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -143,10 +143,10 @@ function MyCareer() {
               {/* Available Paths Grid */}
               <section>
                 <div className="mb-6">
-                  <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                  <h2 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
                     Explore Career Options
                   </h2>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-[#64748B]">
                     Switching paths updates your enrolled curriculum and module progress view.
                   </p>
                 </div>
@@ -166,24 +166,24 @@ function MyCareer() {
                           key={career._id}
                           className={`group flex flex-col justify-between rounded-2xl border p-6 shadow-sm transition-all duration-200 ${
                             isSelected
-                              ? "border-slate-900 bg-white ring-2 ring-slate-900/10 shadow-md"
+                              ? "border-[#4F46E5] bg-white ring-2 ring-[#4F46E5]/20 shadow-md"
                               : "border-slate-200/80 bg-white hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
                           }`}
                         >
                           <div>
                             <div className="flex items-start justify-between gap-2">
-                              <h3 className="text-lg font-bold text-slate-900 group-hover:text-slate-800">
+                              <h3 className="text-lg font-bold text-[#0F172A] group-hover:text-[#4F46E5] transition">
                                 {career.title || career.name}
                               </h3>
                               {isSelected && (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2.5 py-0.5 text-xs font-semibold text-white shrink-0">
-                                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                                <span className="inline-flex items-center gap-1 rounded-full bg-[#4F46E5] px-2.5 py-0.5 text-xs font-semibold text-white shrink-0">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-[#10B981]"></span>
                                   Enrolled
                                 </span>
                               )}
                             </div>
 
-                            <p className="mt-3 text-sm leading-relaxed text-slate-500">
+                            <p className="mt-3 text-sm leading-relaxed text-[#64748B]">
                               {career.description ||
                                 career.overview ||
                                 "Follow a structured learning path designed for this career field."}
@@ -194,7 +194,7 @@ function MyCareer() {
                                 {career.skills.map((skill, idx) => (
                                   <span
                                     key={idx}
-                                    className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 border border-slate-200/50"
+                                    className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-[#64748B] border border-slate-200/50"
                                   >
                                     {skill}
                                   </span>
@@ -211,7 +211,7 @@ function MyCareer() {
                               className={`w-full rounded-xl px-4 py-3 text-sm font-semibold transition ${
                                 isSelected
                                   ? "bg-slate-100 text-slate-400 cursor-default"
-                                  : "bg-slate-900 text-white hover:bg-slate-800 shadow-sm disabled:opacity-60"
+                                  : "bg-[#4F46E5] text-white hover:bg-[#3730A3] shadow-sm disabled:opacity-60"
                               }`}
                             >
                               {selectingId === career._id

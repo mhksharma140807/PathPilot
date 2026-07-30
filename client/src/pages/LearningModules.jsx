@@ -105,20 +105,20 @@ function LearningModules() {
   });
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-[#F8FAFC]">
       <Sidebar />
 
       <main className="min-w-0 flex-1">
         {/* Top Header */}
         <header className="border-b border-slate-200/80 bg-white px-6 py-5 md:px-8">
           <div className="mx-auto max-w-7xl">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
               Curriculum Path
             </p>
-            <h1 className="mt-1 text-2xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="mt-1 text-2xl font-extrabold text-[#0F172A] tracking-tight">
               Learning Modules
             </h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-[#64748B]">
               Structured modules designed for your enrolled career track.
             </p>
           </div>
@@ -143,14 +143,14 @@ function LearningModules() {
           {!loading && !error && career && (
             <>
               {/* Career Curriculum Overview Card */}
-              <section className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-md md:p-8">
+              <section className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-6 text-white shadow-lg md:p-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="max-w-2xl">
                     <span className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700/50">
                       Enrolled Path
                     </span>
 
-                    <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+                    <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl text-white">
                       {career.title || career.name || "Career Path"}
                     </h2>
 
@@ -178,7 +178,7 @@ function LearningModules() {
               {/* Modules Filter & Grid */}
               <section>
                 <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                  <h3 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
                     Modules Overview ({filteredModules.length})
                   </h3>
 
@@ -189,8 +189,8 @@ function LearningModules() {
                       onClick={() => setFilter("all")}
                       className={`rounded-lg px-3 py-1.5 transition ${
                         filter === "all"
-                          ? "bg-white text-slate-900 shadow-sm"
-                          : "text-slate-600 hover:text-slate-900"
+                          ? "bg-[#4F46E5] text-white shadow-sm"
+                          : "text-[#64748B] hover:text-[#0F172A]"
                       }`}
                     >
                       All ({totalCount})
@@ -200,8 +200,8 @@ function LearningModules() {
                       onClick={() => setFilter("in_progress")}
                       className={`rounded-lg px-3 py-1.5 transition ${
                         filter === "in_progress"
-                          ? "bg-white text-slate-900 shadow-sm"
-                          : "text-slate-600 hover:text-slate-900"
+                          ? "bg-[#4F46E5] text-white shadow-sm"
+                          : "text-[#64748B] hover:text-[#0F172A]"
                       }`}
                     >
                       In Progress ({inProgressCount})
@@ -211,8 +211,8 @@ function LearningModules() {
                       onClick={() => setFilter("completed")}
                       className={`rounded-lg px-3 py-1.5 transition ${
                         filter === "completed"
-                          ? "bg-white text-slate-900 shadow-sm"
-                          : "text-slate-600 hover:text-slate-900"
+                          ? "bg-[#4F46E5] text-white shadow-sm"
+                          : "text-[#64748B] hover:text-[#0F172A]"
                       }`}
                     >
                       Completed ({completedCount})
