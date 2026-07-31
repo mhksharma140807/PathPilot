@@ -56,7 +56,6 @@ function LearningModules() {
 
       setModules(fetchedModules);
 
-      // Create progress lookup map
       const progList = progressResponse?.progress || [];
       const map = {};
       progList.forEach((item) => {
@@ -87,6 +86,8 @@ function LearningModules() {
     const p = progressMap[m._id || m.id] || 0;
     return p > 0 && p < 100;
   }).length;
+  const notStartedCount = totalCount - completedCount - inProgressCount;
+
   const overallPct =
     totalCount > 0
       ? Math.round(
@@ -108,18 +109,18 @@ function LearningModules() {
     <div className="flex min-h-screen bg-[#F8FAFC]">
       <Sidebar />
 
-      <main className="min-w-0 flex-1">
+      <main className="min-w-0 flex-1 md:ml-64">
         {/* Top Header */}
-        <header className="border-b border-slate-200/80 bg-white px-6 py-5 md:px-8">
+        <header className="border-b border-slate-200 bg-white px-6 py-5 md:px-8">
           <div className="mx-auto max-w-7xl">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
-              Curriculum Path
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Learning Units
             </p>
             <h1 className="mt-1 text-2xl font-extrabold text-[#0F172A] tracking-tight">
               Learning Modules
             </h1>
-            <p className="mt-1 text-sm text-[#64748B]">
-              Structured modules designed for your enrolled career track.
+            <p className="mt-1 text-sm text-slate-500">
+              Master individual learning units to progress along your career path.
             </p>
           </div>
         </header>
@@ -142,24 +143,24 @@ function LearningModules() {
 
           {!loading && !error && career && (
             <>
-              {/* Career Curriculum Overview Card */}
-              <section className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-6 text-white shadow-lg md:p-8">
+              {/* Career Curriculum Overview Banner */}
+              <section className="rounded-3xl bg-[#0F172A] p-6 text-white shadow-md md:p-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="max-w-2xl">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700/50">
-                      Enrolled Path
+                    <span className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700">
+                      Active Curriculum
                     </span>
 
-                    <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl text-white">
+                    <h2 className="mt-3 text-3xl font-extrabold text-white">
                       {career.title || career.name || "Career Path"}
                     </h2>
 
                     <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                      Master each learning module below to build complete domain proficiency.
+                      Work through step-by-step learning modules to build real-world proficiency.
                     </p>
                   </div>
 
-                  <div className="w-full md:w-64 rounded-2xl bg-slate-800/80 p-5 border border-slate-700/60 backdrop-blur-sm shrink-0">
+                  <div className="w-full md:w-64 rounded-2xl bg-slate-800/90 p-5 border border-slate-700/80 shrink-0">
                     <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
                       <span>Curriculum Completion</span>
                       <span className="text-base font-extrabold text-white">{overallPct}%</span>
@@ -168,7 +169,7 @@ function LearningModules() {
                       <ProgressBar progress={overallPct} />
                     </div>
                     <div className="mt-4 flex justify-between text-xs text-slate-400 border-t border-slate-700/50 pt-3">
-                      <span>Completed: {completedCount}</span>
+                      <span>Done: {completedCount}</span>
                       <span>Total: {totalCount}</span>
                     </div>
                   </div>
@@ -179,18 +180,18 @@ function LearningModules() {
               <section>
                 <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <h3 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
-                    Modules Overview ({filteredModules.length})
+                    Modules ({filteredModules.length})
                   </h3>
 
                   {/* Filter Tabs */}
-                  <div className="inline-flex rounded-xl bg-slate-200/70 p-1 text-xs font-semibold">
+                  <div className="inline-flex rounded-xl bg-slate-200/80 p-1 text-xs font-semibold">
                     <button
                       type="button"
                       onClick={() => setFilter("all")}
-                      className={`rounded-lg px-3 py-1.5 transition ${
+                      className={`rounded-lg px-3.5 py-1.5 transition ${
                         filter === "all"
-                          ? "bg-[#4F46E5] text-white shadow-sm"
-                          : "text-[#64748B] hover:text-[#0F172A]"
+                          ? "bg-[#2563EB] text-white shadow-xs"
+                          : "text-slate-600 hover:text-[#0F172A]"
                       }`}
                     >
                       All ({totalCount})
@@ -198,10 +199,10 @@ function LearningModules() {
                     <button
                       type="button"
                       onClick={() => setFilter("in_progress")}
-                      className={`rounded-lg px-3 py-1.5 transition ${
+                      className={`rounded-lg px-3.5 py-1.5 transition ${
                         filter === "in_progress"
-                          ? "bg-[#4F46E5] text-white shadow-sm"
-                          : "text-[#64748B] hover:text-[#0F172A]"
+                          ? "bg-[#2563EB] text-white shadow-xs"
+                          : "text-slate-600 hover:text-[#0F172A]"
                       }`}
                     >
                       In Progress ({inProgressCount})
@@ -209,13 +210,24 @@ function LearningModules() {
                     <button
                       type="button"
                       onClick={() => setFilter("completed")}
-                      className={`rounded-lg px-3 py-1.5 transition ${
+                      className={`rounded-lg px-3.5 py-1.5 transition ${
                         filter === "completed"
-                          ? "bg-[#4F46E5] text-white shadow-sm"
-                          : "text-[#64748B] hover:text-[#0F172A]"
+                          ? "bg-[#2563EB] text-white shadow-xs"
+                          : "text-slate-600 hover:text-[#0F172A]"
                       }`}
                     >
                       Completed ({completedCount})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFilter("not_started")}
+                      className={`rounded-lg px-3.5 py-1.5 transition ${
+                        filter === "not_started"
+                          ? "bg-[#2563EB] text-white shadow-xs"
+                          : "text-slate-600 hover:text-[#0F172A]"
+                      }`}
+                    >
+                      Not Started ({notStartedCount})
                     </button>
                   </div>
                 </div>

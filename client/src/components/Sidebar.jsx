@@ -37,7 +37,7 @@ function Sidebar() {
       ),
     },
     {
-      label: "My Career",
+      label: "My Career Path",
       path: "/my-career",
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -55,7 +55,7 @@ function Sidebar() {
       ),
     },
     {
-      label: "Progress Analytics",
+      label: "Progress",
       path: "/progress",
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,20 +63,29 @@ function Sidebar() {
         </svg>
       ),
     },
+    {
+      label: "Profile",
+      path: "/profile",
+      icon: (
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+    },
   ];
 
-  const sidebarContent = (
+  const sidebarInner = (
     <div className="flex h-full flex-col justify-between bg-[#0F172A] text-white">
       <div>
         <div className="flex items-center gap-3 border-b border-slate-800 px-6 py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4F46E5] text-white font-bold text-lg shadow-md">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2563EB] text-white font-bold text-lg shadow-sm">
             P
           </div>
           <div>
             <h1 className="text-xl font-bold text-white tracking-tight">
               PathPilot
             </h1>
-            <p className="text-xs font-medium text-cyan-400">
+            <p className="text-xs font-medium text-blue-400">
               Career Ecosystem
             </p>
           </div>
@@ -91,7 +100,7 @@ function Sidebar() {
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
                   isActive
-                    ? "bg-[#4F46E5] text-white shadow-md"
+                    ? "bg-[#2563EB] text-white shadow-sm"
                     : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
                 }`
               }
@@ -104,8 +113,12 @@ function Sidebar() {
       </div>
 
       <div className="border-t border-slate-800 p-4">
-        <div className="flex items-center gap-3 rounded-xl bg-slate-800/60 p-3 border border-slate-700/50">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#4F46E5] text-xs font-bold text-white">
+        <NavLink
+          to="/profile"
+          onClick={() => setMobileMenuOpen(false)}
+          className="flex items-center gap-3 rounded-xl bg-slate-800/60 p-3 border border-slate-700/50 hover:bg-slate-800 transition block"
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-xs font-bold text-white">
             {userInitial}
           </div>
           <div className="min-w-0 flex-1">
@@ -116,7 +129,7 @@ function Sidebar() {
               {userEmail || "Student Account"}
             </p>
           </div>
-        </div>
+        </NavLink>
 
         <button
           type="button"
@@ -134,15 +147,15 @@ function Sidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-[#0F172A] md:block">
-        {sidebarContent}
+      {/* Fixed Stationary Desktop Sidebar at Viewport Height */}
+      <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-[#0F172A] md:block fixed left-0 top-0 bottom-0 z-30 h-screen overflow-y-auto">
+        {sidebarInner}
       </aside>
 
-      {/* Mobile Bar */}
-      <div className="flex items-center justify-between border-b border-slate-800 bg-[#0F172A] px-4 py-3 text-white md:hidden">
+      {/* Mobile Top Header */}
+      <div className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800 bg-[#0F172A] px-4 py-3 text-white md:hidden">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#4F46E5] text-white font-bold text-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#2563EB] text-white font-bold text-sm">
             P
           </div>
           <span className="font-bold text-white">PathPilot</span>
@@ -151,8 +164,8 @@ function Sidebar() {
         <button
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="rounded-lg p-2 text-slate-300 hover:bg-slate-800"
-          aria-label="Toggle menu"
+          className="rounded-lg p-2 text-slate-300 hover:bg-slate-800 transition"
+          aria-label="Toggle navigation drawer"
         >
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {mobileMenuOpen ? (
@@ -164,10 +177,18 @@ function Sidebar() {
         </button>
       </div>
 
-      {/* Mobile Dropdown Menu */}
+      {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className="border-b border-slate-800 bg-[#0F172A] md:hidden shadow-lg">
-          {sidebarContent}
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <div
+            className="fixed inset-y-0 left-0 w-72 bg-[#0F172A] shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {sidebarInner}
+          </div>
         </div>
       )}
     </>

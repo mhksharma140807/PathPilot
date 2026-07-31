@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../services/authService";
 
 function Login() {
@@ -128,7 +128,13 @@ function Login() {
           </button>
         </form>
 
-        <div className="mt-8 border-t border-slate-100 pt-6 text-center">
+        <div className="mt-8 border-t border-slate-100 pt-6 text-center space-y-2">
+          <p className="text-sm text-[#64748B]">
+            Don't have an account?{" "}
+            <Link to="/register" className="font-bold text-[#4F46E5] hover:underline">
+              Create Account
+            </Link>
+          </p>
           <p className="text-xs text-[#64748B]">
             Powered by PathPilot Learning Platform
           </p>

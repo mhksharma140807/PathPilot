@@ -1,19 +1,29 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import LandingPage from "../pages/LandingPage";
 import Login from "../pages/Login";
+import Register from "../pages/Register";
 import StudentDashboard from "../pages/StudentDashboard";
 import ProtectedRoute from "./ProtectedRoute";
+import PublicOnlyRoute from "./PublicOnlyRoute";
 import MyCareer from "../pages/MyCareer";
 import LearningModules from "../pages/LearningModules";
 import ModuleDetails from "../pages/ModuleDetails";
 import Progress from "../pages/Progress";
+import Profile from "../pages/Profile";
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<LandingPage />} />
 
+      {/* Auth Entry Routes - Redirect logged-in users to Dashboard */}
+      <Route element={<PublicOnlyRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
+
+      {/* Protected Student Routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Navigate to="/student/dashboard" replace />} />
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/my-career" element={<MyCareer />} />
         <Route path="/student/career" element={<MyCareer />} />
@@ -21,9 +31,10 @@ function AppRoutes() {
         <Route path="/student/modules" element={<LearningModules />} />
         <Route path="/learning-modules/:moduleId" element={<ModuleDetails />} />
         <Route path="/progress" element={<Progress />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/student/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
