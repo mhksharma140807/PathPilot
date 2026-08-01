@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { loginUser } from "../services/authService";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/student/dashboard";
 
   const [formData, setFormData] = useState({
     email: "",
@@ -36,7 +38,7 @@ function Login() {
       localStorage.setItem("user", JSON.stringify(response.user));
 
       if (response.user.role === "student") {
-        navigate("/student/dashboard");
+        navigate(from, { replace: true });
       } else {
         setError(
           "This dashboard is currently available for students."

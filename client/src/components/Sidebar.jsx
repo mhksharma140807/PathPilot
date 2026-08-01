@@ -7,7 +7,7 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/", { replace: true });
   };
 
   const userStr = localStorage.getItem("user");
@@ -33,7 +33,7 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       ),
     },
     {
-      label: "Career Path",
+      label: "Career Roadmap",
       path: "/my-career",
       icon: (
         <svg className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-105" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -42,7 +42,7 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       ),
     },
     {
-      label: "Learning",
+      label: "Learning Hub",
       path: "/learning-modules",
       icon: (
         <svg className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-105" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -51,7 +51,7 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
       ),
     },
     {
-      label: "Progress",
+      label: "Progress Tracker",
       path: "/progress",
       icon: (
         <svg className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-105" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,7 +107,7 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
                   PathPilot
                 </h1>
                 <p className="text-[10px] font-semibold text-blue-400 mt-0.5 truncate">
-                  SaaS Dashboard
+                  Career Learning Platform
                 </p>
               </div>
             )}

@@ -46,7 +46,7 @@ function AppLayout() {
     }
     if (path.startsWith("/my-career") || path.startsWith("/student/career")) {
       return {
-        title: "Career Path",
+        title: "Career Roadmap",
         welcome: "Explore your roadmap & active curriculum",
         category: "Career Strategy",
       };
@@ -60,14 +60,14 @@ function AppLayout() {
     }
     if (path.startsWith("/learning-modules") || path.startsWith("/student/modules")) {
       return {
-        title: "Learning",
+        title: "Learning Hub",
         welcome: "Master units to complete your active path",
         category: "Learning Modules",
       };
     }
     if (path.startsWith("/progress")) {
       return {
-        title: "Progress",
+        title: "Progress Tracker",
         welcome: "Comprehensive module completion analytics",
         category: "Performance Analytics",
       };
@@ -88,6 +88,18 @@ function AppLayout() {
   };
 
   const headerInfo = getHeaderInfo();
+
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  useEffect(() => {
+    setIsProfileOpen(false);
+  }, [location.pathname]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/", { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans antialiased overflow-x-hidden">
@@ -131,37 +143,69 @@ function AppLayout() {
               </div>
             </div>
 
-            {/* Middle: Search Bar Placeholder (Optional/SaaS style) */}
-            <div className="hidden md:flex flex-1 max-w-xs mx-4">
-              <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search modules, skills..."
-                  readOnly
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-1.5 pl-9 pr-3 text-xs font-medium text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 cursor-default"
-                />
-              </div>
-            </div>
-
-            {/* Right: Welcome Text & User Profile Avatar */}
-            <div className="flex items-center gap-3 shrink-0">
+            {/* Right: Welcome Text & User Profile Avatar Dropdown */}
+            <div className="flex items-center gap-3 shrink-0 relative">
               <div className="hidden sm:block text-right">
                 <p className="text-xs font-bold text-[#0F172A] leading-snug">{userName}</p>
                 <p className="text-[11px] text-slate-400 font-medium">{userEmail || "Student"}</p>
               </div>
 
-              <Link
-                to="/profile"
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2563EB] text-xs font-bold text-white shadow-xs ring-2 ring-blue-500/20 hover:bg-blue-700 transition"
-                title="View Profile"
-              >
-                {userInitial}
-              </Link>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2563EB] text-xs font-bold text-white shadow-xs ring-2 ring-blue-500/20 hover:bg-blue-700 transition focus:outline-none"
+                  aria-label="User profile menu"
+                >
+                  {userInitial}
+                </button>
+
+                {/* Profile Dropdown Menu */}
+                {isProfileOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-30"
+                      onClick={() => setIsProfileOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg z-40 text-slate-700">
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-100 transition"
+                      >
+                        <svg className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span>Profile</span>
+                      </Link>
+
+                      <div className="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold text-slate-400 cursor-not-allowed">
+                        <div className="flex items-center gap-2.5">
+                          <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span>Settings</span>
+                        </div>
+                        <span className="text-[10px] font-normal text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">Soon</span>
+                      </div>
+
+                      <div className="my-1 border-t border-slate-100" />
+
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition"
+                      >
+                        <svg className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </header>

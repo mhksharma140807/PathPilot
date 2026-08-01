@@ -36,12 +36,12 @@ function Register() {
         localStorage.setItem("user", JSON.stringify(response.user));
 
         if (response.user.role === "student") {
-          navigate("/student/dashboard");
+          navigate("/student/dashboard", { replace: true });
         } else {
-          navigate("/login");
+          navigate("/login", { replace: true });
         }
       } else {
-        navigate("/login");
+        navigate("/login", { replace: true });
       }
     } catch (error) {
       setError(
