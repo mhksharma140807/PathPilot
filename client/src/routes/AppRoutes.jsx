@@ -10,6 +10,7 @@ import LearningModules from "../pages/LearningModules";
 import ModuleDetails from "../pages/ModuleDetails";
 import Progress from "../pages/Progress";
 import Profile from "../pages/Profile";
+import AppLayout from "../components/AppLayout";
 
 function AppRoutes() {
   return (
@@ -22,16 +23,18 @@ function AppRoutes() {
         <Route path="/register" element={<Register />} />
       </Route>
 
-      {/* Protected Student Routes */}
+      {/* Protected Student Routes wrapped in AppLayout */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/student/dashboard" element={<StudentDashboard />} />
-        <Route path="/my-career" element={<MyCareer />} />
-        <Route path="/student/career" element={<MyCareer />} />
-        <Route path="/learning-modules" element={<LearningModules />} />
-        <Route path="/student/modules" element={<LearningModules />} />
-        <Route path="/learning-modules/:moduleId" element={<ModuleDetails />} />
-        <Route path="/progress" element={<Progress />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route element={<AppLayout />}>
+          <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route path="/my-career" element={<MyCareer />} />
+          <Route path="/student/career" element={<MyCareer />} />
+          <Route path="/learning-modules" element={<LearningModules />} />
+          <Route path="/student/modules" element={<LearningModules />} />
+          <Route path="/learning-modules/:moduleId" element={<ModuleDetails />} />
+          <Route path="/progress" element={<Progress />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
