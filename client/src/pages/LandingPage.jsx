@@ -136,7 +136,7 @@ function LandingPage() {
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center py-2.5 text-xs font-bold text-white bg-[#2563EB] rounded-xl"
+                className="block w-full text-center py-3 text-sm font-bold text-white bg-[#2563EB] rounded-xl"
               >
                 Get Started
               </Link>
@@ -148,27 +148,27 @@ function LandingPage() {
       {/* MAIN CONTENT */}
       <main className="flex-1">
         {/* 2. HERO SECTION */}
-        <section className="py-20 lg:py-28 bg-white border-b border-slate-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center space-y-6">
+        <section className="min-h-[calc(100vh-4rem)] md:min-h-0 flex items-center py-6 sm:py-12 md:py-20 lg:py-28 bg-white border-b border-slate-200">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3.5 py-1.5 text-xs font-bold text-[#2563EB] border border-blue-100">
                 <span className="h-2 w-2 rounded-full bg-[#2563EB]"></span>
                 Career Learning Ecosystem
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#0F172A] leading-tight">
+              <h1 className="text-2xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#0F172A] leading-tight">
                 Navigate Your Tech Career. <br />
                 <span className="text-[#2563EB]">Build Real-World Mastery.</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
+              <p className="text-sm sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
                 Select structured career paths, master topic modules at your own pace, and track your milestone progress with PathPilot.
               </p>
 
-              <div className="pt-4 flex justify-center">
+              <div className="pt-2 sm:pt-4 flex justify-center">
                 <Link
                   to="/login"
-                  className="px-8 py-3.5 text-sm font-extrabold text-white bg-[#2563EB] hover:bg-blue-700 rounded-xl transition shadow-md shadow-blue-600/20"
+                  className="w-full sm:w-auto px-9 py-4 text-base md:px-8 md:py-3.5 md:text-sm font-extrabold text-white bg-[#2563EB] hover:bg-blue-700 rounded-xl transition shadow-md shadow-blue-600/20 text-center"
                 >
                   Get Started
                 </Link>
@@ -178,42 +178,42 @@ function LandingPage() {
         </section>
 
         {/* 3. THREE PREMIUM FEATURE CARDS */}
-        <section className="py-16 sm:py-24 bg-[#F8FAFC]">
+        <section className="py-10 sm:py-16 md:py-24 bg-[#F8FAFC]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
+            <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 md:mb-14">
+              <h2 className="text-xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
                 How PathPilot Empowers Your Learning
               </h2>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-xs sm:text-sm text-slate-500">
                 Three core steps to transform your learning journey into career readiness.
               </p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 md:gap-8 md:grid-cols-3">
               {features.map((feat, idx) => (
                 <article
                   key={idx}
-                  className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xs flex flex-col justify-between transition-all hover:border-slate-300 hover:shadow-md"
+                  className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 md:p-8 shadow-xs flex flex-col justify-between transition-all hover:border-slate-300 hover:shadow-md"
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 border border-blue-100">
+                    <div className="flex items-center justify-between mb-4 sm:mb-6">
+                      <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-blue-50 border border-blue-100">
                         {feat.icon}
                       </div>
-                      <span className="text-2xl font-extrabold text-slate-300">
+                      <span className="text-xl sm:text-2xl font-extrabold text-slate-300">
                         {feat.step}
                       </span>
                     </div>
 
-                    <h3 className="text-xl font-extrabold text-[#0F172A]">
+                    <h3 className="text-lg sm:text-xl font-extrabold text-[#0F172A]">
                       {feat.title}
                     </h3>
-                    <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                    <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
                       {feat.desc}
                     </p>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-slate-100">
+                  <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-100">
                     <Link
                       to="/login"
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2563EB] hover:underline"
@@ -229,25 +229,25 @@ function LandingPage() {
         </section>
 
         {/* 4. SERVICES SECTION */}
-        <section id="services" className="py-16 sm:py-24 bg-white border-y border-slate-200">
+        <section id="services" className="py-10 sm:py-16 md:py-24 bg-white border-y border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
+            <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 md:mb-14">
+              <h2 className="text-xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
                 Our Services & Capabilities
               </h2>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-xs sm:text-sm text-slate-500">
                 Designed to deliver structured direction and clear measurable goals.
               </p>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:gap-6 lg:grid-cols-4">
               {services.map((s, idx) => (
                 <div
                   key={idx}
-                  className="rounded-2xl border border-slate-200 bg-[#F8FAFC] p-6 shadow-xs flex flex-col justify-between"
+                  className="rounded-2xl border border-slate-200 bg-[#F8FAFC] p-5 sm:p-6 shadow-xs flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-slate-200 mb-4 shadow-2xs">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-slate-200 mb-3 sm:mb-4 shadow-2xs">
                       {s.icon}
                     </div>
                     <h3 className="text-base font-bold text-[#0F172A]">
@@ -264,16 +264,16 @@ function LandingPage() {
         </section>
 
         {/* 5. ABOUT US SECTION */}
-        <section id="about" className="py-16 sm:py-24 bg-[#F8FAFC]">
+        <section id="about" className="py-10 sm:py-16 md:py-24 bg-[#F8FAFC]">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="rounded-3xl border border-slate-200 bg-white p-8 sm:p-12 shadow-xs text-center space-y-4">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 md:p-12 shadow-xs text-center space-y-3 sm:space-y-4">
               <span className="text-xs font-bold uppercase tracking-wider text-[#2563EB]">
                 Project Story & Mission
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
+              <h2 className="text-xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
                 About PathPilot
               </h2>
-              <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
+              <p className="text-xs sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
                 PathPilot was created to solve the lack of structured guidance in tech learning. By organizing complex fields into clear roadmaps and self-paced learning modules, PathPilot helps students choose a direction, stay focused, and build measurable skills with clarity.
               </p>
             </div>
@@ -281,19 +281,19 @@ function LandingPage() {
         </section>
 
         {/* 6. FINAL CTA BANNER */}
-        <section className="py-16 sm:py-20 bg-white border-t border-slate-200">
+        <section className="py-10 sm:py-16 md:py-20 bg-white border-t border-slate-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="rounded-3xl bg-[#0F172A] p-8 sm:p-12 text-white shadow-xl space-y-4">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <div className="rounded-3xl bg-[#0F172A] p-6 sm:p-10 md:p-12 text-white shadow-xl space-y-4">
+              <h2 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
                 Ready to Start Your Career Journey?
               </h2>
-              <p className="text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
                 Join PathPilot today, enroll in your target career path, and start building skills.
               </p>
               <div className="pt-2">
                 <Link
                   to="/login"
-                  className="inline-block px-8 py-3.5 text-xs font-extrabold text-white bg-[#2563EB] hover:bg-blue-700 rounded-xl transition shadow-md"
+                  className="inline-block w-full sm:w-auto px-9 py-4 text-sm md:px-8 md:py-3.5 md:text-xs font-extrabold text-white bg-[#2563EB] hover:bg-blue-700 rounded-xl transition shadow-md text-center"
                 >
                   Get Started
                 </Link>
@@ -304,7 +304,7 @@ function LandingPage() {
       </main>
 
       {/* 7. COMPACT FOOTER */}
-      <footer className="bg-[#0F172A] text-slate-400 py-10 border-t border-slate-800 text-xs">
+      <footer className="bg-[#0F172A] text-slate-400 py-8 md:py-10 border-t border-slate-800 text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#2563EB] text-white font-extrabold text-xs">
@@ -316,7 +316,7 @@ function LandingPage() {
             </div>
           </div>
 
-          <nav className="flex flex-wrap items-center gap-6 text-xs text-slate-400">
+          <nav className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
             <a href="#" className="hover:text-white transition">Home</a>
             <a href="#services" className="hover:text-white transition">Services</a>
             <a href="#about" className="hover:text-white transition">About Us</a>

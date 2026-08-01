@@ -180,59 +180,124 @@ function StudentDashboard() {
                 </section>
               )}
 
-              {/* 3. QUICK STATS GRID */}
-              <section className="grid gap-4 sm:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Overall Progress
-                    </p>
-                    <p className="mt-1 text-2xl font-extrabold text-[#0F172A]">
-                      {overallProgress}%
-                    </p>
-                    <p className="text-xs text-slate-400 mt-0.5">Total track milestone</p>
+              {/* 3. QUICK STATS & QUICK ACTIONS */}
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        Overall Progress
+                      </p>
+                      <p className="mt-1 text-2xl font-extrabold text-[#0F172A]">
+                        {overallProgress}%
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">Total track milestone</p>
+                    </div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#2563EB]">
+                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
                   </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#2563EB]">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        Completed Modules
+                      </p>
+                      <p className="mt-1 text-2xl font-extrabold text-emerald-600">
+                        {completedModules}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">Mastered learning units</p>
+                    </div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        Modules Remaining
+                      </p>
+                      <p className="mt-1 text-2xl font-extrabold text-slate-700">
+                        {remainingModules}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">Pending curriculum units</p>
+                    </div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Completed Modules
-                    </p>
-                    <p className="mt-1 text-2xl font-extrabold text-emerald-600">
-                      {completedModules}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-0.5">Mastered learning units</p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
+                {/* Quick Actions Shortcuts */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <Link
+                    to="/my-career"
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-[#2563EB] hover:shadow-sm transition group"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white transition">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-[#0F172A] truncate">Career Roadmap</p>
+                      <p className="text-[10px] text-slate-400 truncate">Curriculum view</p>
+                    </div>
+                  </Link>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Modules Remaining
-                    </p>
-                    <p className="mt-1 text-2xl font-extrabold text-slate-700">
-                      {remainingModules}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-0.5">Pending curriculum units</p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
+                  <Link
+                    to="/learning-modules"
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-[#2563EB] hover:shadow-sm transition group"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white transition">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-[#0F172A] truncate">Learning Hub</p>
+                      <p className="text-[10px] text-slate-400 truncate">All modules</p>
+                    </div>
+                  </Link>
+
+                  <Link
+                    to="/progress"
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-[#2563EB] hover:shadow-sm transition group"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white transition">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-[#0F172A] truncate">Progress Tracker</p>
+                      <p className="text-[10px] text-slate-400 truncate">Analytics & stats</p>
+                    </div>
+                  </Link>
+
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-[#2563EB] hover:shadow-sm transition group"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white transition">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-[#0F172A] truncate">Profile</p>
+                      <p className="text-[10px] text-slate-400 truncate">Identity & account</p>
+                    </div>
+                  </Link>
                 </div>
-              </section>
+              </div>
 
               {/* 4. MAIN DASHBOARD CONTENT GRID (JOURNEY PREVIEW + UPCOMING & RECENT PROGRESS) */}
               <div className="grid gap-8 lg:grid-cols-12">
