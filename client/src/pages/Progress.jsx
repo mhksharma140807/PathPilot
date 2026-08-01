@@ -73,7 +73,7 @@ function Progress() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="max-w-2xl">
                 <span className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-blue-400 border border-slate-700">
-                  Enrolled Path Progress
+                  Enrolled Path Analytics
                 </span>
 
                 <h2 className="mt-3 text-3xl font-extrabold text-white">
@@ -81,13 +81,13 @@ function Progress() {
                 </h2>
 
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  Detailed breakdown of your completed learning milestones.
+                  Detailed breakdown of your completed learning milestones and curriculum progress.
                 </p>
               </div>
 
               <div className="w-full md:w-64 rounded-2xl bg-slate-800/90 p-5 border border-slate-700/80 shrink-0">
                 <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
-                  <span>Overall Progress</span>
+                  <span>Overall Completion</span>
                   <span className="text-base font-extrabold text-white">{overallProgress}%</span>
                 </div>
                 <div className="mt-3">
@@ -101,7 +101,7 @@ function Progress() {
             </div>
           </section>
 
-          {/* Progress Summary Cards */}
+          {/* Milestone & Summary Cards */}
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <DashboardCard
               title="Overall Completion"
@@ -118,7 +118,7 @@ function Progress() {
             <DashboardCard
               title="Completed Modules"
               value={`${completedModules}`}
-              subtitle="Fully finished units"
+              subtitle="Fully mastered units"
               icon={
                 <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -140,7 +140,7 @@ function Progress() {
             <DashboardCard
               title="Remaining Modules"
               value={`${Math.max(notStartedModules, 0)}`}
-              subtitle="Yet to be started"
+              subtitle="Pending units"
               icon={
                 <svg className="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -149,15 +149,66 @@ function Progress() {
             />
           </section>
 
-          {/* Module-by-Module Progress Breakdown List */}
+          {/* VISUAL PROGRESS TIMELINE */}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs md:p-8 space-y-6">
+            <div className="border-b border-slate-100 pb-4">
+              <h3 className="text-xl font-extrabold text-[#0F172A]">
+                Visual Progress Timeline
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Visual status overview of all modules in sequence.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {modules.map((mod, idx) => {
+                const prog = mod.progressPercentage || mod.progress || 0;
+                const isDone = prog >= 100;
+                const isInProgress = prog > 0 && prog < 100;
+
+                return (
+                  <div
+                    key={mod.moduleId || mod._id || idx}
+                    className={`rounded-2xl border p-4 transition flex flex-col justify-between ${
+                      isDone
+                        ? "bg-emerald-50/50 border-emerald-200"
+                        : isInProgress
+                        ? "bg-blue-50/50 border-blue-200 ring-1 ring-[#2563EB]/20"
+                        : "bg-slate-50 border-slate-200"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between text-xs font-extrabold mb-2">
+                        <span className={isDone ? "text-emerald-700" : isInProgress ? "text-[#2563EB]" : "text-slate-500"}>
+                          Module 0{idx + 1}
+                        </span>
+                        <span className="text-xs font-bold">
+                          {isDone ? "✓ Done" : isInProgress ? `${prog}%` : "Not Started"}
+                        </span>
+                      </div>
+                      <h4 className="text-sm font-bold text-[#0F172A] truncate">
+                        {mod.title}
+                      </h4>
+                    </div>
+
+                    <div className="mt-3 pt-2">
+                      <ProgressBar progress={prog} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Detailed Breakdown List */}
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs md:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
                 <h3 className="text-xl font-extrabold text-[#0F172A]">
-                  Module-by-Module Breakdown
+                  Milestone Progress Breakdown
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  Individual progress percentage and status per learning module.
+                  Individual completion rate and status per module unit.
                 </p>
               </div>
 
@@ -167,10 +218,7 @@ function Progress() {
                   onClick={() => navigate(`/learning-modules/${currentModule.moduleId || currentModule._id}`)}
                   className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-blue-700 shadow-xs shrink-0"
                 >
-                  <span>Continue Active Module</span>
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
+                  <span>Continue Active Module →</span>
                 </button>
               )}
             </div>
@@ -185,7 +233,7 @@ function Progress() {
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-3">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200 text-xs font-bold text-slate-700">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200 text-xs font-extrabold text-slate-700">
                           0{idx + 1}
                         </span>
                         <h4 className="text-base font-bold text-[#0F172A]">

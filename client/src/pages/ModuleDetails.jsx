@@ -181,7 +181,7 @@ function ModuleDetails() {
 
       {!loading && module && (
         <>
-          {/* Module Banner */}
+          {/* Module Banner Header */}
           <section className="rounded-3xl bg-[#0F172A] p-6 text-white shadow-md md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-300">
               <span className="font-semibold uppercase tracking-wider text-[#2563EB]">
@@ -205,23 +205,35 @@ function ModuleDetails() {
             )}
           </section>
 
-          {/* Progress Bar & Status */}
-          <section className={`rounded-3xl border p-6 shadow-xs transition ${progress >= 100 ? 'border-emerald-200 bg-emerald-50/60' : 'border-slate-200 bg-white'}`}>
-            <div className="flex items-center justify-between gap-4">
+          {/* Progress & Completion Status Card */}
+          <section className={`rounded-3xl border p-6 shadow-xs transition ${progress >= 100 ? 'border-emerald-300 bg-emerald-50/80' : 'border-slate-200 bg-white'}`}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-[#0F172A]">
-                  Module Progress
+                  {progress >= 100 ? "🎉 Module Fully Mastered!" : "Module Completion Progress"}
                 </h2>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-xs text-slate-600">
                   {progress >= 100
-                    ? "🎉 Module Mastered! All topics completed."
+                    ? "Congratulations! You have completed all lessons in this learning module."
                     : `Completed ${completedLessonIndices.length} of ${lessons.length} lessons.`}
                 </p>
               </div>
 
-              <span className={`text-2xl font-extrabold ${progress >= 100 ? 'text-emerald-600' : 'text-[#2563EB]'}`}>
-                {progress}%
-              </span>
+              <div className="flex items-center gap-3">
+                <span className={`text-2xl font-extrabold ${progress >= 100 ? 'text-emerald-600' : 'text-[#2563EB]'}`}>
+                  {progress}%
+                </span>
+
+                {progress >= 100 && (
+                  <button
+                    type="button"
+                    onClick={() => navigate("/learning-modules")}
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
+                  >
+                    <span>Proceed to Next Module →</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="mt-4">
@@ -231,7 +243,7 @@ function ModuleDetails() {
 
           {/* Learning Experience Layout */}
           <div className="grid gap-8 lg:grid-cols-12">
-            {/* Lessons Sidebar */}
+            {/* Lessons Sidebar & Objectives */}
             <aside className="lg:col-span-4 space-y-4">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F172A] mb-4">
@@ -268,10 +280,10 @@ function ModuleDetails() {
                 </div>
               </div>
 
-              {/* Objectives Box */}
+              {/* Learning Objectives Box */}
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-                  What You'll Learn
+                  Learning Objectives
                 </h3>
                 <ul className="space-y-2.5 text-xs text-slate-600">
                   {objectives.map((obj, i) => (
@@ -339,14 +351,23 @@ function ModuleDetails() {
                         : "Mark Progress"}
                     </button>
 
-                    <button
-                      type="button"
-                      disabled={activeLessonIndex === lessons.length - 1}
-                      onClick={() => setActiveLessonIndex((prev) => Math.min(prev + 1, lessons.length - 1))}
-                      className="rounded-xl bg-[#0F172A] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 disabled:opacity-40"
-                    >
-                      Next Lesson →
-                    </button>
+                    {activeLessonIndex === lessons.length - 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => navigate("/learning-modules")}
+                        className="rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700 shadow-xs"
+                      >
+                        Next Module →
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setActiveLessonIndex((prev) => Math.min(prev + 1, lessons.length - 1))}
+                        className="rounded-xl bg-[#0F172A] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800"
+                      >
+                        Next Lesson →
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
