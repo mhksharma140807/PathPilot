@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import LandingPage from "../pages/LandingPage";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -10,6 +10,7 @@ import LearningModules from "../pages/LearningModules";
 import ModuleDetails from "../pages/ModuleDetails";
 import Progress from "../pages/Progress";
 import Profile from "../pages/Profile";
+import NotFound from "../pages/NotFound";
 import AppLayout from "../components/AppLayout";
 
 function AppRoutes() {
@@ -37,7 +38,8 @@ function AppRoutes() {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Global 404 Page Not Found */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

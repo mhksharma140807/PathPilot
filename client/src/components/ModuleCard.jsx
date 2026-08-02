@@ -82,12 +82,13 @@ function ModuleCard({ module, index, isCurrent }) {
         <button
           type="button"
           onClick={() => navigate(`/learning-modules/${moduleId}`)}
-          className={`mt-5 w-full rounded-xl px-4 py-2.5 text-xs font-extrabold transition ${
+          aria-label={`${isCompleted ? "Review" : isInProgress ? "Continue" : "Start"} module ${module.title || module.name}`}
+          className={`mt-5 flex h-10 w-full items-center justify-center rounded-xl px-4 text-xs font-extrabold transition active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
             isCompleted
-              ? "bg-slate-100 text-[#0F172A] hover:bg-slate-200"
+              ? "bg-slate-100 text-[#0F172A] hover:bg-slate-200 focus:ring-slate-400"
               : isInProgress || isCurrent
-              ? "bg-[#2563EB] text-white hover:bg-blue-700 shadow-xs"
-              : "bg-slate-900 text-white hover:bg-slate-800 shadow-xs"
+              ? "bg-[#2563EB] text-white hover:bg-blue-700 shadow-xs focus:ring-[#2563EB]"
+              : "bg-slate-900 text-white hover:bg-slate-800 shadow-xs focus:ring-slate-900"
           }`}
         >
           {isCompleted ? "Review Module" : isInProgress ? "Continue Learning →" : "Start Module →"}

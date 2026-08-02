@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getStoredToken, clearAuthSession } from "../utils/authStorage";
 
 const api = axios.create({
   baseURL: "http://localhost:5000/api",
@@ -9,7 +10,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = getStoredToken();
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -23,11 +24,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      clearAuthSession();
       if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
+        window.location.replace("/login");
       }
     }
     return Promise.reject(error);

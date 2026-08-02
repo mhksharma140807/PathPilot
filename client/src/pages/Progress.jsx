@@ -19,7 +19,7 @@ function Progress() {
       setLoading(true);
       setError("");
       const resData = await getStudentDashboard();
-      setData(resData);
+      setData(resData || {});
     } catch (err) {
       console.error("Failed to load progress analytics:", err);
       setError(
@@ -51,16 +51,16 @@ function Progress() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 space-y-8">
-      {loading && <LoadingState message="Loading your progress analytics..." />}
+      {loading && <LoadingState variant="progress" message="Loading your progress analytics..." />}
 
       {!loading && error && (
         <ErrorState message={error} onRetry={loadProgressData} />
       )}
 
-      {!loading && !error && !hasEnrollment && (
+      {!loading && !error && (!hasEnrollment || modules.length === 0) && (
         <EmptyState
-          title="No Active Career Selected"
-          description="Choose a career path to begin tracking your module progress and analytics."
+          title="No completed modules yet."
+          description="Select your career path or complete learning units to see detailed analytics."
           actionText="Explore Career Paths"
           actionLink="/my-career"
         />
@@ -69,7 +69,7 @@ function Progress() {
       {!loading && !error && hasEnrollment && (
         <>
           {/* Analytics Hero / Career Overview */}
-          <section className="rounded-3xl bg-[#0F172A] p-6 text-white shadow-md md:p-8">
+          <section className="rounded-3xl bg-[#0F172A] p-6 text-white shadow-md md:p-8 border border-slate-800">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="max-w-2xl">
                 <span className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-blue-400 border border-slate-700">
@@ -77,7 +77,7 @@ function Progress() {
                 </span>
 
                 <h2 className="mt-3 text-3xl font-extrabold text-white">
-                  {data.career?.title || data.career?.name}
+                  {data.career?.title || data.career?.name || "Career Path"}
                 </h2>
 
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">
@@ -169,7 +169,7 @@ function Progress() {
                 return (
                   <div
                     key={mod.moduleId || mod._id || idx}
-                    className={`rounded-2xl border p-4 transition flex flex-col justify-between ${
+                    className={`rounded-2xl border p-4 transition-all duration-200 flex flex-col justify-between ${
                       isDone
                         ? "bg-emerald-50/50 border-emerald-200"
                         : isInProgress
@@ -216,33 +216,33 @@ function Progress() {
                 <button
                   type="button"
                   onClick={() => navigate(`/learning-modules/${currentModule.moduleId || currentModule._id}`)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-blue-700 shadow-xs shrink-0"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-bold text-white transition-all duration-200 hover:bg-blue-700 shadow-xs shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 >
                   <span>Continue Active Module →</span>
                 </button>
               )}
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 overflow-x-auto">
               {modules.map((mod, idx) => {
                 const prog = mod.progressPercentage || mod.progress || 0;
                 return (
                   <div
                     key={mod.moduleId || mod._id || idx}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-[#F8FAFC] p-5"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-[#F8FAFC] p-5 transition-all duration-200"
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200 text-xs font-extrabold text-slate-700">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200 text-xs font-extrabold text-slate-700 shrink-0">
                           0{idx + 1}
                         </span>
-                        <h4 className="text-base font-bold text-[#0F172A]">
+                        <h4 className="text-base font-bold text-[#0F172A] truncate">
                           {mod.title}
                         </h4>
                         <StatusBadge progress={prog} status={mod.status} />
                       </div>
                       {mod.description && (
-                        <p className="text-xs text-slate-500 line-clamp-1 pl-10">
+                        <p className="text-xs text-slate-500 line-clamp-1 sm:pl-10">
                           {mod.description}
                         </p>
                       )}

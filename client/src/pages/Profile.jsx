@@ -4,6 +4,8 @@ import { getCurrentUser } from "../services/authService";
 import { getStudentDashboard } from "../services/dashboardService";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
+import { getStoredUser, setStoredUser } from "../utils/authStorage";
+import EmptyState from "../components/EmptyState";
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -16,19 +18,13 @@ function Profile() {
       setLoading(true);
       setError("");
 
-      const userStr = localStorage.getItem("user");
-      let localUser = null;
-      if (userStr) {
-        try {
-          localUser = JSON.parse(userStr);
-        } catch (e) { }
-      }
+      const localUser = getStoredUser();
 
       try {
         const userRes = await getCurrentUser();
         if (userRes?.user) {
           setUser(userRes.user);
-          localStorage.setItem("user", JSON.stringify(userRes.user));
+          setStoredUser(userRes.user);
         } else if (localUser) {
           setUser(localUser);
         }
@@ -38,7 +34,7 @@ function Profile() {
 
       try {
         const dashData = await getStudentDashboard();
-        setDashboardData(dashData);
+        setDashboardData(dashData || {});
       } catch (e) { }
     } catch (err) {
       setError(err.message || "Failed to load profile details.");
@@ -55,27 +51,21 @@ function Profile() {
   const totalModules = dashboardData?.summary?.totalModules || modules.length || 0;
   const completedModules = dashboardData?.summary?.completedModules || modules.filter((m) => (m.progressPercentage || m.progress || 0) >= 100).length || 0;
   const overallProgress = dashboardData?.summary?.overallProgress || 0;
-  // ==========================
-  // User Display Information
-  // ==========================
 
   const userName = user?.name || "Student";
-
   const userEmail = user?.email || "student@pathpilot.com";
-
   const userRole = user?.role || "student";
-
   const userInitial = userName.charAt(0).toUpperCase();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 md:px-8">
-      {loading && <LoadingState message="Loading profile details..." />}
+      {loading && <LoadingState variant="profile" message="Loading profile details..." />}
 
       {!loading && error && (
         <ErrorState message={error} onRetry={loadProfile} />
       )}
 
-      {!loading && (
+      {!loading && !error && (
         <div className="grid gap-6 md:grid-cols-12">
           {/* Left Identity Card */}
           <div className="md:col-span-4 rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-xs flex flex-col items-center justify-between space-y-6">
@@ -84,7 +74,7 @@ function Profile() {
                 {userInitial}
               </div>
               <h3 className="text-xl font-extrabold text-[#0F172A]">{userName}</h3>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">{userEmail}</p>
+              <p className="text-xs font-medium text-slate-500 mt-0.5 break-all">{userEmail}</p>
               <span className="mt-3 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#2563EB] border border-blue-100">
                 {userRole} Account
               </span>
@@ -117,7 +107,7 @@ function Profile() {
                 </div>
                 <div>
                   <dt className="text-xs text-slate-500 font-semibold uppercase">Email Address</dt>
-                  <dd className="mt-1 font-bold text-[#0F172A]">{userEmail}</dd>
+                  <dd className="mt-1 font-bold text-[#0F172A] break-all">{userEmail}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-slate-500 font-semibold uppercase">Account Role</dt>
@@ -142,33 +132,30 @@ function Profile() {
                       ENROLLED CURRICULUM
                     </span>
                     <p className="text-lg font-extrabold text-[#0F172A]">
-                      {dashboardData.career.title || dashboardData.career.name}
+                      {dashboardData.career.title || dashboardData.career.name || "Career Path"}
                     </p>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-                      {dashboardData.career.overview || dashboardData.career.description}
+                      {dashboardData.career.overview || dashboardData.career.description || "Active learning roadmap"}
                     </p>
                   </div>
                   <Link
                     to="/my-career"
-                    className="inline-flex items-center justify-center gap-1 text-xs font-bold text-white bg-[#2563EB] hover:bg-blue-700 px-4 py-2.5 rounded-xl shrink-0 transition shadow-xs"
+                    className="inline-flex items-center justify-center gap-1 text-xs font-bold text-white bg-[#2563EB] hover:bg-blue-700 px-4 py-2.5 rounded-xl shrink-0 transition-all duration-200 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   >
                     View Roadmap
                   </Link>
                 </div>
               ) : (
-                <div className="text-sm text-slate-500 space-y-3">
-                  <p>You have not selected an active career path yet.</p>
-                  <Link
-                    to="/my-career"
-                    className="inline-block text-xs font-bold text-white bg-[#2563EB] hover:bg-blue-700 px-4 py-2 rounded-xl transition"
-                  >
-                    Explore Career Paths
-                  </Link>
-                </div>
+                <EmptyState
+                  title="No additional information available."
+                  description="Select a career path to active your learning roadmap and populate profile statistics."
+                  actionText="Explore Career Paths"
+                  actionLink="/my-career"
+                />
               )}
             </div>
 
-            {/* Achievement Placeholders (UI Only) */}
+            {/* Achievement Placeholders */}
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h4 className="text-base font-bold text-[#0F172A]">
@@ -195,7 +182,7 @@ function Profile() {
               </div>
             </div>
 
-            {/* Account Preferences (Placeholder Section) */}
+            {/* Account Preferences */}
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h4 className="text-base font-bold text-[#0F172A]">

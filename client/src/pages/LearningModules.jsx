@@ -106,7 +106,7 @@ function LearningModules() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 space-y-8">
-      {loading && <LoadingState message="Loading learning modules..." />}
+      {loading && <LoadingState variant="modules" message="Loading learning modules..." />}
 
       {!loading && error && (
         <ErrorState message={error} onRetry={loadData} />
@@ -115,7 +115,7 @@ function LearningModules() {
       {!loading && !error && !career && (
         <EmptyState
           title="No Active Career Selected"
-          description="Please select a career path first to view its learning modules."
+          description="Select a career path to begin."
           actionText="Select a Career Path"
           actionLink="/my-career"
         />
@@ -124,7 +124,7 @@ function LearningModules() {
       {!loading && !error && career && (
         <>
           {/* Career Curriculum Overview Banner */}
-          <section className="rounded-3xl bg-[#0F172A] p-6 text-white shadow-md md:p-8">
+          <section className="rounded-3xl bg-[#0F172A] p-6 text-white shadow-md md:p-8 border border-slate-800">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="max-w-2xl">
                 <span className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700">
@@ -164,11 +164,11 @@ function LearningModules() {
               </h3>
 
               {/* Filter Tabs */}
-              <div className="inline-flex rounded-xl bg-slate-200/80 p-1 text-xs font-semibold">
+              <div className="inline-flex rounded-xl bg-slate-200/80 p-1 text-xs font-semibold overflow-x-auto">
                 <button
                   type="button"
                   onClick={() => setFilter("all")}
-                  className={`rounded-lg px-3.5 py-1.5 transition ${
+                  className={`rounded-lg px-3.5 py-1.5 transition-all duration-200 ${
                     filter === "all"
                       ? "bg-[#2563EB] text-white shadow-xs"
                       : "text-slate-600 hover:text-[#0F172A]"
@@ -179,7 +179,7 @@ function LearningModules() {
                 <button
                   type="button"
                   onClick={() => setFilter("in_progress")}
-                  className={`rounded-lg px-3.5 py-1.5 transition ${
+                  className={`rounded-lg px-3.5 py-1.5 transition-all duration-200 ${
                     filter === "in_progress"
                       ? "bg-[#2563EB] text-white shadow-xs"
                       : "text-[#0F172A] hover:text-[#0F172A]"
@@ -190,7 +190,7 @@ function LearningModules() {
                 <button
                   type="button"
                   onClick={() => setFilter("completed")}
-                  className={`rounded-lg px-3.5 py-1.5 transition ${
+                  className={`rounded-lg px-3.5 py-1.5 transition-all duration-200 ${
                     filter === "completed"
                       ? "bg-[#2563EB] text-white shadow-xs"
                       : "text-[#0F172A] hover:text-[#0F172A]"
@@ -201,7 +201,7 @@ function LearningModules() {
                 <button
                   type="button"
                   onClick={() => setFilter("not_started")}
-                  className={`rounded-lg px-3.5 py-1.5 transition ${
+                  className={`rounded-lg px-3.5 py-1.5 transition-all duration-200 ${
                     filter === "not_started"
                       ? "bg-[#2563EB] text-white shadow-xs"
                       : "text-[#0F172A] hover:text-[#0F172A]"
@@ -214,7 +214,7 @@ function LearningModules() {
 
             {filteredModules.length === 0 ? (
               <EmptyState
-                title="No modules match filter"
+                title="Modules will appear here."
                 description={
                   modules.length === 0
                     ? "Learning modules will appear here once added to this career path."

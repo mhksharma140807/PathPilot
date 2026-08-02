@@ -6,8 +6,11 @@ import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 
+import { useToast } from "../context/ToastContext";
+
 function MyCareer() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [careers, setCareers] = useState([]);
   const [currentCareer, setCurrentCareer] = useState(null);
   const [modules, setModules] = useState([]);
@@ -51,14 +54,15 @@ function MyCareer() {
       const data = await selectCareer(careerId);
       const selected = data.career || data.enrollment?.career;
       setCurrentCareer(selected);
+      toast.success(`Career path selected: ${selected?.title || selected?.name || "Career"}`);
       await loadCareerData();
     } catch (err) {
       if (err.response?.status === 400 && err.response?.data?.enrollment) {
         await loadCareerData();
       } else {
-        setError(
-          err.response?.data?.message || err.message || "Unable to select this career path."
-        );
+        const msg = err.response?.data?.message || err.message || "Unable to select this career path.";
+        setError(msg);
+        toast.error(msg);
       }
     } finally {
       setSelectingId(null);
@@ -133,7 +137,7 @@ function MyCareer() {
             </div>
           ) : (
             <EmptyState
-              title="No Career Path Enrolled"
+              title="Select your career to unlock roadmap."
               description="Choose a career path below to activate your learning roadmap and start mastering modules."
               icon={
                 <svg className="h-7 w-7 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">

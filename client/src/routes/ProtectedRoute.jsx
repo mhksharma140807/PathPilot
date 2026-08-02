@@ -1,7 +1,8 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { getStoredToken } from "../utils/authStorage";
 
 function ProtectedRoute() {
-  const token = localStorage.getItem("token");
+  const token = getStoredToken();
   const location = useLocation();
 
   if (!token) {

@@ -1,9 +1,15 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { registerUser } from "../services/authService";
+import { setStoredToken, setStoredUser } from "../utils/authStorage";
+
+import { useToast } from "../context/ToastContext";
 
 function Register() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const toast = useToast();
+  const from = location.state?.from || "/student/dashboard";
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,6 +31,8 @@ function Register() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (loading) return;
+
     setError("");
     setLoading(true);
 
@@ -32,21 +40,24 @@ function Register() {
       const response = await registerUser(formData);
 
       if (response.token && response.user) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
+        setStoredToken(response.token);
+        setStoredUser(response.user);
 
         if (response.user.role === "student") {
-          navigate("/student/dashboard", { replace: true });
+          toast.success("Account created successfully! Welcome to PathPilot.");
+          navigate(from, { replace: true });
         } else {
+          toast.success("Account created! Please sign in.");
           navigate("/login", { replace: true });
         }
       } else {
+        toast.success("Account created! Please sign in.");
         navigate("/login", { replace: true });
       }
     } catch (error) {
-      setError(
-        error.message || "Registration failed. Please try again."
-      );
+      const msg = error.message || "Registration failed. Please try again.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -56,7 +67,7 @@ function Register() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#F8FAFC] px-4 py-12">
       {/* Brand Header */}
       <div className="mb-8 text-center">
-        <Link to="/" className="inline-flex items-center gap-3">
+        <Link to="/" className="inline-flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-[#0F172A]/20 rounded-2xl p-1">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0F172A] text-xl font-bold text-white shadow-sm">
             P
           </div>
@@ -91,45 +102,51 @@ function Register() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+            <label htmlFor="reg-name" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
               Full Name
             </label>
             <input
+              id="reg-name"
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               placeholder="John Doe"
+              autoComplete="name"
               required
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+            <label htmlFor="reg-email" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
               Email Address
             </label>
             <input
+              id="reg-email"
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               placeholder="student@example.com"
+              autoComplete="email"
               required
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+            <label htmlFor="reg-password" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
               Password
             </label>
             <input
+              id="reg-password"
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               placeholder="••••••••"
+              autoComplete="new-password"
               required
               minLength={6}
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
@@ -148,7 +165,7 @@ function Register() {
         <div className="mt-6 text-center border-t border-slate-100 pt-5">
           <p className="text-sm text-slate-600">
             Already have an account?{" "}
-            <Link to="/login" className="font-bold text-[#2563EB] hover:underline">
+            <Link to="/login" className="font-bold text-[#2563EB] hover:underline focus:outline-none focus:ring-1 focus:ring-[#2563EB]">
               Sign In
             </Link>
           </p>

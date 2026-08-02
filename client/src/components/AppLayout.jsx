@@ -1,18 +1,28 @@
 import { useState, useEffect } from "react";
 import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import { getStoredUser, clearAuthSession } from "../utils/authStorage";
+
+import { useToast } from "../context/ToastContext";
 
 function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [isCollapsed, setIsCollapsed] = useState(() => {
-    return localStorage.getItem("sidebar_collapsed") === "true";
+    try {
+      return localStorage.getItem("sidebar_collapsed") === "true";
+    } catch (e) {
+      return false;
+    }
   });
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("sidebar_collapsed", isCollapsed ? "true" : "false");
+    try {
+      localStorage.setItem("sidebar_collapsed", isCollapsed ? "true" : "false");
+    } catch (e) {}
   }, [isCollapsed]);
 
   // Close mobile drawer on route change
@@ -20,17 +30,10 @@ function AppLayout() {
     setIsMobileOpen(false);
   }, [location.pathname]);
 
-  // Get current user info from localStorage
-  const userStr = localStorage.getItem("user");
-  let userName = "Student";
-  let userEmail = "";
-  if (userStr) {
-    try {
-      const u = JSON.parse(userStr);
-      if (u?.name) userName = u.name;
-      if (u?.email) userEmail = u.email;
-    } catch (e) {}
-  }
+  // Get current user info from safe authStorage
+  const user = getStoredUser();
+  const userName = user?.name || "Student";
+  const userEmail = user?.email || "";
   const userInitial = userName.charAt(0).toUpperCase();
 
   // Determine Page Title & Welcome/Subtext based on active route
@@ -95,9 +98,24 @@ function AppLayout() {
     setIsProfileOpen(false);
   }, [location.pathname]);
 
+  // Handle Escape key to close profile dropdown
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsProfileOpen(false);
+      }
+    };
+    if (isProfileOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isProfileOpen]);
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    clearAuthSession();
+    toast.info("Logged out successfully");
     navigate("/", { replace: true });
   };
 
@@ -125,7 +143,7 @@ function AppLayout() {
               <button
                 type="button"
                 onClick={() => setIsMobileOpen(true)}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 md:hidden"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 md:hidden focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40"
                 aria-label="Open menu"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -143,6 +161,27 @@ function AppLayout() {
               </div>
             </div>
 
+            {/* Middle: Disabled Search Bar Placeholder */}
+            <div 
+              title="Global search will be available in Version 2."
+              className="hidden lg:flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs text-slate-400 cursor-default select-none transition-colors hover:border-slate-300"
+            >
+              <svg className="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search modules, skills..."
+                disabled
+                tabIndex={-1}
+                className="bg-transparent outline-none cursor-default w-48 placeholder:text-slate-400 text-slate-500 font-medium"
+                aria-label="Search modules and skills (disabled)"
+              />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100 border border-amber-200/80 px-2 py-0.5 rounded-full shrink-0">
+                Coming Soon
+              </span>
+            </div>
+
             {/* Right: Welcome Text & User Profile Avatar Dropdown */}
             <div className="flex items-center gap-3 shrink-0 relative">
               <div className="hidden sm:block text-right">
@@ -154,8 +193,9 @@ function AppLayout() {
                 <button
                   type="button"
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2563EB] text-xs font-bold text-white shadow-xs ring-2 ring-blue-500/20 hover:bg-blue-700 transition focus:outline-none"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2563EB] text-xs font-bold text-white shadow-xs ring-2 ring-blue-500/20 hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-600"
                   aria-label="User profile menu"
+                  aria-expanded={isProfileOpen}
                 >
                   {userInitial}
                 </button>
@@ -171,7 +211,7 @@ function AppLayout() {
                       <Link
                         to="/profile"
                         onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-100 transition"
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-100 transition focus:outline-none focus:bg-slate-100"
                       >
                         <svg className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -179,7 +219,7 @@ function AppLayout() {
                         <span>Profile</span>
                       </Link>
 
-                      <div className="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold text-slate-400 cursor-not-allowed">
+                      <div className="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold text-slate-400 cursor-default">
                         <div className="flex items-center gap-2.5">
                           <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -195,7 +235,7 @@ function AppLayout() {
                       <button
                         type="button"
                         onClick={handleLogout}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition"
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition focus:outline-none focus:bg-red-50"
                       >
                         <svg className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

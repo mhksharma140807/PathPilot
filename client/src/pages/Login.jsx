@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { loginUser } from "../services/authService";
+import { setStoredToken, setStoredUser } from "../utils/authStorage";
+
+import { useToast } from "../context/ToastContext";
 
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/student/dashboard";
+  const toast = useToast();
+  const from = location.state?.from || "/student/dashboard";
 
   const [formData, setFormData] = useState({
     email: "",
@@ -25,6 +29,8 @@ function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (loading) return;
+
     setError("");
     setLoading(true);
 
@@ -34,20 +40,21 @@ function Login() {
         formData.password
       );
 
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("user", JSON.stringify(response.user));
+      setStoredToken(response.token);
+      setStoredUser(response.user);
 
       if (response.user.role === "student") {
+        toast.success(`Welcome back, ${response.user.name || "Student"}!`);
         navigate(from, { replace: true });
       } else {
-        setError(
-          "This dashboard is currently available for students."
-        );
+        const msg = "This dashboard is currently available for students.";
+        setError(msg);
+        toast.error(msg);
       }
     } catch (error) {
-      setError(
-        error.message || "Login failed. Please check your credentials."
-      );
+      const msg = error.message || "Login failed. Please check your credentials.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -57,12 +64,14 @@ function Login() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#F8FAFC] px-4 py-12">
       {/* Brand Header */}
       <div className="mb-8 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#4F46E5] text-2xl font-bold text-white shadow-md">
-          P
-        </div>
-        <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-[#0F172A] sm:text-4xl">
-          PathPilot
-        </h1>
+        <Link to="/" className="inline-flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/40 rounded-2xl p-1">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#4F46E5] text-2xl font-bold text-white shadow-md">
+            P
+          </div>
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-[#0F172A] sm:text-4xl">
+            PathPilot
+          </h1>
+        </Link>
         <p className="mt-1 text-sm font-medium text-cyan-600">
           Career Learning & Skill Development Ecosystem
         </p>
@@ -90,32 +99,36 @@ function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+            <label htmlFor="login-email" className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
               Email Address
             </label>
 
             <input
+              id="login-email"
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               placeholder="student@example.com"
+              autoComplete="email"
               required
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+            <label htmlFor="login-password" className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
               Password
             </label>
 
             <input
+              id="login-password"
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               placeholder="••••••••"
+              autoComplete="current-password"
               required
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/20"
             />
@@ -133,7 +146,7 @@ function Login() {
         <div className="mt-8 border-t border-slate-100 pt-6 text-center space-y-2">
           <p className="text-sm text-[#64748B]">
             Don't have an account?{" "}
-            <Link to="/register" className="font-bold text-[#4F46E5] hover:underline">
+            <Link to="/register" className="font-bold text-[#4F46E5] hover:underline focus:outline-none focus:ring-1 focus:ring-[#4F46E5]">
               Create Account
             </Link>
           </p>
@@ -147,4 +160,3 @@ function Login() {
 }
 
 export default Login;
-

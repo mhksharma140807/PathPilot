@@ -1,7 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { getStoredToken } from "../utils/authStorage";
 
 function PublicOnlyRoute() {
-  const token = localStorage.getItem("token");
+  const token = getStoredToken();
 
   if (token) {
     return <Navigate to="/student/dashboard" replace />;

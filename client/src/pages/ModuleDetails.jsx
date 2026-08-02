@@ -8,9 +8,12 @@ import ErrorState from "../components/ErrorState";
 import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
 
+import { useToast } from "../context/ToastContext";
+
 function ModuleDetails() {
   const { moduleId } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [module, setModule] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -131,14 +134,19 @@ function ModuleDetails() {
 
       await updateModuleProgress(moduleId, newProgress);
       setProgress(newProgress);
+      if (newProgress >= 100) {
+        toast.success("Module completed! Outstanding work.");
+      } else {
+        toast.success(`Lesson marked complete (${newProgress}%)`);
+      }
 
       if (indexToComplete + 1 < totalL) {
         setActiveLessonIndex(indexToComplete + 1);
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message || err.message || "Unable to update lesson progress."
-      );
+      const msg = err.response?.data?.message || err.message || "Unable to update lesson progress.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setUpdating(false);
     }

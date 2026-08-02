@@ -1,25 +1,34 @@
+import { useEffect } from "react";
 import { useNavigate, NavLink, useLocation } from "react-router-dom";
+import { getStoredUser, clearAuthSession } from "../utils/authStorage";
+
+import { useToast } from "../context/ToastContext";
 
 function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
+
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileOpen]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    clearAuthSession();
+    toast.info("Logged out successfully");
     navigate("/", { replace: true });
   };
 
-  const userStr = localStorage.getItem("user");
-  let userName = "Student";
-  let userEmail = "";
-  if (userStr) {
-    try {
-      const u = JSON.parse(userStr);
-      if (u?.name) userName = u.name;
-      if (u?.email) userEmail = u.email;
-    } catch (e) {}
-  }
+  const user = getStoredUser();
+  const userName = user?.name || "Student";
+  const userEmail = user?.email || "";
   const userInitial = userName.charAt(0).toUpperCase();
 
   const navItems = [
@@ -85,7 +94,7 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
 
   const renderNavContent = (collapsed = false, isMobile = false) => (
     <div className="flex h-full flex-col justify-between bg-[#0F172A] text-white select-none overflow-hidden">
-      {/* 1. Top Branding Header (Logo stays fixed at top) */}
+      {/* Top Branding Header */}
       <div className="shrink-0">
         <div
           className={`flex items-center border-b border-slate-800/80 py-4 transition-all duration-300 ${
@@ -95,8 +104,9 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
           <NavLink
             to="/student/dashboard"
             onClick={() => isMobile && setIsMobileOpen(false)}
-            className="flex items-center gap-3 min-w-0"
+            className="flex items-center gap-3 min-w-0 focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-xl"
             title="PathPilot Dashboard"
+            aria-label="PathPilot Dashboard"
           >
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#2563EB] text-white font-extrabold text-base shadow-sm ring-2 ring-blue-500/20">
               P
@@ -113,12 +123,11 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
             )}
           </NavLink>
 
-          {/* Desktop Collapse Toggle Button */}
           {!isMobile && (
             <button
               type="button"
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hidden md:flex h-7 w-7 items-center justify-center rounded-lg border border-slate-700/60 bg-slate-800/80 text-slate-400 hover:bg-slate-700 hover:text-white transition"
+              className="hidden md:flex h-7 w-7 items-center justify-center rounded-lg border border-slate-700/60 bg-slate-800/80 text-slate-400 hover:bg-slate-700 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
@@ -135,12 +144,11 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
             </button>
           )}
 
-          {/* Mobile Close Button */}
           {isMobile && (
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               aria-label="Close drawer"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -151,9 +159,9 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
         </div>
       </div>
 
-      {/* 2. Navigation Items (Centrally Aligned in Vertical Space) */}
+      {/* Navigation Items */}
       <div className="flex-1 flex flex-col justify-center py-4 overflow-y-auto px-3">
-        <nav className="space-y-1.5">
+        <nav className="space-y-1.5" aria-label="Main Navigation">
           {navItems.map((item) => {
             const active = isItemActive(item.path);
 
@@ -162,8 +170,9 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
                 key={item.path}
                 to={item.path}
                 title={collapsed && !isMobile ? item.label : undefined}
+                aria-label={item.label}
                 onClick={() => isMobile && setIsMobileOpen(false)}
-                className={`group relative flex items-center rounded-xl py-2.5 text-sm font-semibold transition-all duration-200 ${
+                className={`group relative flex items-center rounded-xl py-2.5 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
                   collapsed && !isMobile
                     ? "justify-center px-2.5"
                     : "gap-3.5 px-3.5"
@@ -173,7 +182,6 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
                     : "text-slate-400 hover:bg-slate-800/80 hover:text-white"
                 }`}
               >
-                {/* Active Left Pill Accent */}
                 {active && (
                   <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-white shadow-xs" />
                 )}
@@ -191,14 +199,14 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
         </nav>
       </div>
 
-      {/* 3. Bottom Footer (User & Logout stay fixed at bottom) */}
+      {/* Bottom Footer */}
       <div className="shrink-0 border-t border-slate-800/80 p-3 space-y-2">
-        {/* User Card */}
         <NavLink
           to="/profile"
           onClick={() => isMobile && setIsMobileOpen(false)}
           title={collapsed && !isMobile ? userName : undefined}
-          className={`flex items-center rounded-xl bg-slate-800/40 border border-slate-800/60 p-2.5 transition hover:bg-slate-800 ${
+          aria-label="View user profile"
+          className={`flex items-center rounded-xl bg-slate-800/40 border border-slate-800/60 p-2.5 transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
             collapsed && !isMobile ? "justify-center" : "gap-3"
           }`}
         >
@@ -217,12 +225,12 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
           )}
         </NavLink>
 
-        {/* Separated Logout Button */}
         <button
           type="button"
           onClick={handleLogout}
           title={collapsed && !isMobile ? "Logout" : undefined}
-          className={`flex w-full items-center rounded-xl border border-slate-800/80 bg-slate-900/60 py-2.5 text-xs font-semibold text-slate-400 transition hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 ${
+          aria-label="Logout of account"
+          className={`flex w-full items-center rounded-xl border border-slate-800/80 bg-slate-900/60 py-2.5 text-xs font-semibold text-slate-400 transition hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 ${
             collapsed && !isMobile ? "justify-center px-2" : "justify-center gap-2 px-3"
           }`}
         >
@@ -237,7 +245,6 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
 
   return (
     <>
-      {/* Desktop Fixed Sidebar */}
       <aside
         className={`hidden md:block fixed left-0 top-0 bottom-0 z-30 h-screen border-r border-slate-800 bg-[#0F172A] transition-all duration-300 ease-in-out ${
           isCollapsed ? "w-20" : "w-64"
@@ -246,7 +253,6 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
         {renderNavContent(isCollapsed, false)}
       </aside>
 
-      {/* Mobile Drawer Overlay */}
       {isMobileOpen && (
         <div
           className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs md:hidden transition-opacity duration-300"
