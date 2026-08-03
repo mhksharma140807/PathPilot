@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import ProgressBar from "./ProgressBar";
-import StatusBadge from "./StatusBadge";
 
 function ModuleCard({ module, index, isCurrent }) {
   const navigate = useNavigate();
@@ -10,21 +9,30 @@ function ModuleCard({ module, index, isCurrent }) {
   const isCompleted = progress >= 100 || module.status === "completed";
   const isInProgress = (progress > 0 && progress < 100) || module.status === "in_progress";
 
+  // Difficulty badge logic (fallback to Intermediate if unspecified)
+  const difficulty = module.difficulty || (index % 3 === 0 ? "Beginner" : index % 3 === 1 ? "Intermediate" : "Advanced");
+  const difficultyStyles = {
+    Beginner: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    Intermediate: "bg-blue-50 text-blue-700 border-blue-200",
+    Advanced: "bg-[#4F46E5]/10 text-[#4F46E5] border-[#4F46E5]/20",
+  };
+
   return (
     <article
-      className={`group flex flex-col justify-between rounded-2xl border p-6 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
-        isCurrent || isInProgress
-          ? "border-[#2563EB] bg-blue-50/20 ring-2 ring-[#2563EB]/20"
-          : isCompleted
-          ? "border-emerald-200 bg-emerald-50/20"
-          : "border-slate-200 bg-white hover:border-slate-300"
+      className={`group flex flex-col justify-between rounded-3xl border p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+        isCompleted
+          ? "border-emerald-200 bg-white"
+          : isInProgress || isCurrent
+          ? "border-blue-300 bg-white ring-2 ring-blue-500/20"
+          : "border-slate-200/90 bg-white hover:border-slate-300"
       }`}
     >
-      <div>
-        <div className="flex items-start justify-between gap-4">
+      <div className="space-y-4">
+        {/* Top bar: Module Icon, Difficulty Badge, and Status Badge */}
+        <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-extrabold text-white shadow-xs ${
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-extrabold text-white shadow-xs transition-transform duration-300 group-hover:scale-105 ${
                 isCompleted
                   ? "bg-emerald-600"
                   : isInProgress || isCurrent
@@ -32,66 +40,82 @@ function ModuleCard({ module, index, isCurrent }) {
                   : "bg-slate-800"
               }`}
             >
-              {isCompleted ? "✓" : index + 1}
+              {isCompleted ? (
+                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <span>0{index + 1}</span>
+              )}
             </div>
+
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-[#0F172A] group-hover:text-[#2563EB] transition">
-                  {module.title || module.name}
-                </h3>
-                {(isCurrent || isInProgress) && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2563EB]">
-                    Active Focus
-                  </span>
-                )}
-                {isCompleted && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800">
-                    Mastered
-                  </span>
-                )}
-              </div>
+              <span className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${difficultyStyles[difficulty] || difficultyStyles.Intermediate}`}>
+                {difficulty}
+              </span>
+              <h3 className="mt-1 text-base font-extrabold text-[#0F172A] group-hover:text-[#2563EB] transition-colors leading-snug">
+                {module.title || module.name}
+              </h3>
             </div>
           </div>
-          <StatusBadge progress={progress} status={module.status} />
+
+          {/* Status Badge */}
+          <span
+            className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+              isCompleted
+                ? "bg-emerald-100 text-emerald-800"
+                : isInProgress || isCurrent
+                ? "bg-blue-100 text-[#2563EB]"
+                : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            {isCompleted ? "Completed" : isInProgress || isCurrent ? "In Progress" : "Not Started"}
+          </span>
         </div>
 
+        {/* Short description */}
         {module.description && (
-          <p className="mt-3 text-sm leading-relaxed text-slate-600 line-clamp-2">
+          <p className="text-xs leading-relaxed text-slate-600 line-clamp-2">
             {module.description}
           </p>
         )}
 
-        {module.estimatedHours > 0 && (
-          <div className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-            <svg className="h-3.5 w-3.5 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Duration: ~{module.estimatedHours} {module.estimatedHours === 1 ? 'hour' : 'hours'}</span>
-          </div>
-        )}
+        {/* Estimated duration */}
+        <div className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+          <svg className="h-3.5 w-3.5 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Est. Duration: ~{module.estimatedHours || 2} {module.estimatedHours === 1 ? 'hour' : 'hours'}</span>
+        </div>
       </div>
 
-      <div className="mt-6 pt-4 border-t border-slate-100">
-        <div className="mb-2 flex items-center justify-between text-xs">
-          <span className="font-medium text-slate-500">Progress</span>
-          <span className="font-bold text-[#0F172A]">{progress}%</span>
-        </div>
+      {/* Footer: Progress bar and Action button */}
+      <div className="mt-6 pt-4 border-t border-slate-100 space-y-4">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-bold">
+            <span className="text-slate-500">Progress</span>
+            <span className={isCompleted ? "text-emerald-700" : isInProgress ? "text-[#2563EB]" : "text-slate-600"}>
+              {progress}%
+            </span>
+          </div>
 
-        <ProgressBar progress={progress} />
+          <ProgressBar progress={progress} />
+        </div>
 
         <button
           type="button"
           onClick={() => navigate(`/learning-modules/${moduleId}`)}
           aria-label={`${isCompleted ? "Review" : isInProgress ? "Continue" : "Start"} module ${module.title || module.name}`}
-          className={`mt-5 flex h-10 w-full items-center justify-center rounded-xl px-4 text-xs font-extrabold transition active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+          className={`flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-xs font-extrabold transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
             isCompleted
               ? "bg-slate-100 text-[#0F172A] hover:bg-slate-200 focus:ring-slate-400"
               : isInProgress || isCurrent
-              ? "bg-[#2563EB] text-white hover:bg-blue-700 shadow-xs focus:ring-[#2563EB]"
+              ? "bg-[#2563EB] text-white hover:bg-blue-700 shadow-md shadow-blue-600/20 focus:ring-[#2563EB]"
               : "bg-slate-900 text-white hover:bg-slate-800 shadow-xs focus:ring-slate-900"
           }`}
         >
-          {isCompleted ? "Review Module" : isInProgress ? "Continue Learning →" : "Start Module →"}
+          <span>{isCompleted ? "Review Module" : isInProgress ? "Continue Learning" : "Start Module"}</span>
+          <span>→</span>
         </button>
       </div>
     </article>

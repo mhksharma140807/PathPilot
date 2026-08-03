@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { getMyCareer } from "../services/careerService";
 import { getModulesByCareer } from "../services/moduleService";
 import { getMyProgress } from "../services/progressService";
@@ -78,31 +79,42 @@ function LearningModules() {
   }, []);
 
   const totalCount = modules.length;
-  const completedCount = modules.filter(
-    (m) => (progressMap[m._id || m.id] || 0) >= 100
-  ).length;
-  const inProgressCount = modules.filter((m) => {
-    const p = progressMap[m._id || m.id] || 0;
-    return p > 0 && p < 100;
-  }).length;
-  const notStartedCount = totalCount - completedCount - inProgressCount;
+  const completedCount = useMemo(
+    () => modules.filter((m) => (progressMap[m._id || m.id] || 0) >= 100).length,
+    [modules, progressMap]
+  );
+  const inProgressCount = useMemo(
+    () => modules.filter((m) => {
+      const p = progressMap[m._id || m.id] || 0;
+      return p > 0 && p < 100;
+    }).length,
+    [modules, progressMap]
+  );
+  const remainingCount = totalCount - completedCount;
 
-  const overallPct =
-    totalCount > 0
-      ? Math.round(
-          (modules.reduce((acc, m) => acc + (progressMap[m._id || m.id] || 0), 0) /
-            (totalCount * 100)) *
-            100
-        )
-      : 0;
+  const overallPct = useMemo(() => {
+    if (totalCount === 0) return 0;
+    const sum = modules.reduce((acc, m) => acc + (progressMap[m._id || m.id] || 0), 0);
+    return Math.round((sum / (totalCount * 100)) * 100);
+  }, [modules, totalCount, progressMap]);
 
-  const filteredModules = modules.filter((m) => {
-    const p = progressMap[m._id || m.id] || 0;
-    if (filter === "completed") return p >= 100;
-    if (filter === "in_progress") return p > 0 && p < 100;
-    if (filter === "not_started") return p === 0;
-    return true;
-  });
+  const totalEstHours = useMemo(() => {
+    return modules.reduce((acc, m) => acc + (m.estimatedHours || 2), 0);
+  }, [modules]);
+
+  const currentModule = useMemo(() => {
+    return modules.find((m) => (progressMap[m._id || m.id] || 0) < 100) || modules[0] || null;
+  }, [modules, progressMap]);
+
+  const filteredModules = useMemo(() => {
+    return modules.filter((m) => {
+      const p = progressMap[m._id || m.id] || 0;
+      if (filter === "completed") return p >= 100;
+      if (filter === "in_progress") return p > 0 && p < 100;
+      if (filter === "not_started") return p === 0;
+      return true;
+    });
+  }, [modules, progressMap, filter]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 space-y-8">
@@ -114,54 +126,111 @@ function LearningModules() {
 
       {!loading && !error && !career && (
         <EmptyState
-          title="No Active Career Selected"
-          description="Select a career path to begin."
-          actionText="Select a Career Path"
+          title="No modules available"
+          description="Modules will appear once your learning path is activated."
+          actionText="Go to Career Roadmap"
           actionLink="/my-career"
+          icon={
+            <svg className="h-8 w-8 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          }
         />
       )}
 
       {!loading && !error && career && (
         <>
-          {/* Career Curriculum Overview Banner */}
-          <section className="rounded-3xl bg-[#0F172A] p-6 text-white shadow-md md:p-8 border border-slate-800">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="max-w-2xl">
-                <span className="inline-flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700">
-                  Active Curriculum
-                </span>
+          {/* 1. PROFESSIONAL PAGE HEADER */}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all hover:shadow-sm">
+            <div className="space-y-1.5 max-w-2xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-[#2563EB] border border-blue-100">
+                <span className="h-2 w-2 rounded-full bg-[#2563EB]"></span>
+                Enrolled: {career.title || career.name || "Career Path"}
+              </span>
+              <h1 className="text-2xl font-extrabold text-[#0F172A] tracking-tight sm:text-3xl">
+                Learning Modules
+              </h1>
+              <p className="text-sm text-slate-500 font-medium">
+                Continue mastering your career roadmap through structured learning modules.
+              </p>
+            </div>
 
-                <h2 className="mt-3 text-3xl font-extrabold text-white">
-                  {career.title || career.name || "Career Path"}
-                </h2>
-
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  Work through step-by-step learning modules to build real-world proficiency.
-                </p>
+            {/* Right side stats header summary */}
+            <div className="flex items-center gap-4 shrink-0 rounded-2xl bg-slate-50 p-4 border border-slate-100">
+              <div className="text-center px-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Overall Completion</p>
+                <p className="text-xl font-extrabold text-[#2563EB] mt-0.5">{overallPct}%</p>
               </div>
-
-              <div className="w-full md:w-64 rounded-2xl bg-slate-800/90 p-5 border border-slate-700/80 shrink-0">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
-                  <span>Curriculum Completion</span>
-                  <span className="text-base font-extrabold text-white">{overallPct}%</span>
-                </div>
-                <div className="mt-3">
-                  <ProgressBar progress={overallPct} />
-                </div>
-                <div className="mt-4 flex justify-between text-xs text-slate-400 border-t border-slate-700/50 pt-3">
-                  <span>Done: {completedCount}</span>
-                  <span>Total: {totalCount}</span>
-                </div>
+              <div className="h-8 w-px bg-slate-200" />
+              <div className="text-center px-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Completed Modules</p>
+                <p className="text-xl font-extrabold text-emerald-600 mt-0.5">{completedCount}/{totalCount}</p>
+              </div>
+              <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+              <div className="text-center px-2 hidden sm:block">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Est. Time</p>
+                <p className="text-xl font-extrabold text-slate-700 mt-0.5">~{totalEstHours}h</p>
               </div>
             </div>
           </section>
 
-          {/* Modules Filter & Grid */}
-          <section>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h3 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
-                Modules ({filteredModules.length})
-              </h3>
+          {/* 5. LEARNING SUMMARY SECTION */}
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs flex items-center justify-between transition-all hover:border-emerald-300 hover:shadow-md">
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Completed</p>
+                <p className="mt-1 text-2xl font-extrabold text-emerald-600">{completedCount}</p>
+                <p className="text-xs text-slate-400 mt-0.5">Mastered units</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 font-bold">
+                ✓
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs flex items-center justify-between transition-all hover:border-slate-300 hover:shadow-md">
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Remaining</p>
+                <p className="mt-1 text-2xl font-extrabold text-slate-700">{remainingCount}</p>
+                <p className="text-xs text-slate-400 mt-0.5">Pending units</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 font-bold">
+                ⏳
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs flex items-center justify-between transition-all hover:border-blue-300 hover:shadow-md">
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Current Module</p>
+                <p className="mt-1 text-base font-bold text-[#0F172A] truncate max-w-[130px]">
+                  {currentModule?.title || "None"}
+                </p>
+                <p className="text-xs text-slate-400 mt-0.5">Active focus</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#2563EB] font-bold">
+                ⚡
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs flex items-center justify-between transition-all hover:border-blue-300 hover:shadow-md">
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Overall Progress</p>
+                <p className="mt-1 text-2xl font-extrabold text-[#2563EB]">{overallPct}%</p>
+                <p className="text-xs text-slate-400 mt-0.5">Curriculum milestone</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#2563EB]">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+            </div>
+          </section>
+
+          {/* 7. RESPONSIVE GRID LAYOUT (3 columns desktop, 2 tablet, 1 mobile) */}
+          <section className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
+                Curriculum Modules ({filteredModules.length})
+              </h2>
 
               {/* Filter Tabs */}
               <div className="inline-flex rounded-xl bg-slate-200/80 p-1 text-xs font-semibold overflow-x-auto">
@@ -207,22 +276,24 @@ function LearningModules() {
                       : "text-[#0F172A] hover:text-[#0F172A]"
                   }`}
                 >
-                  Not Started ({notStartedCount})
+                  Not Started ({totalCount - completedCount - inProgressCount})
                 </button>
               </div>
             </div>
 
             {filteredModules.length === 0 ? (
               <EmptyState
-                title="Modules will appear here."
+                title="No modules available"
                 description={
                   modules.length === 0
-                    ? "Learning modules will appear here once added to this career path."
-                    : "No modules currently match the selected status filter."
+                    ? "Modules will appear once your learning path is activated."
+                    : "No modules match your selected filter."
                 }
+                actionText="Go to Career Roadmap"
+                actionLink="/my-career"
               />
             ) : (
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {filteredModules.map((module, index) => {
                   const mId = module._id || module.id;
                   const moduleProg = progressMap[mId] || 0;

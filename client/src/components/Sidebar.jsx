@@ -178,15 +178,17 @@ function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
                     : "gap-3.5 px-3.5"
                 } ${
                   active
-                    ? "bg-[#2563EB] text-white shadow-sm font-bold"
+                    ? "bg-[#2563EB] text-white shadow-md font-extrabold"
                     : "text-slate-400 hover:bg-slate-800/80 hover:text-white"
                 }`}
               >
                 {active && (
-                  <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-white shadow-xs" />
+                  <span className="absolute left-0 top-1.5 bottom-1.5 w-1.5 rounded-r-full bg-white shadow-md animate-pulse" />
                 )}
 
-                {item.icon}
+                <div className={active ? "text-white" : "text-slate-400 group-hover:text-white transition-colors"}>
+                  {item.icon}
+                </div>
 
                 {(!collapsed || isMobile) && (
                   <span className="truncate whitespace-nowrap transition-all duration-300">

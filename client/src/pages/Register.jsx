@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { registerUser } from "../services/authService";
 import { setStoredToken, setStoredUser } from "../utils/authStorage";
-
 import { useToast } from "../context/ToastContext";
 
 function Register() {
@@ -18,6 +17,7 @@ function Register() {
     role: "student",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -64,111 +64,206 @@ function Register() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#F8FAFC] px-4 py-12">
-      {/* Brand Header */}
-      <div className="mb-8 text-center">
-        <Link to="/" className="inline-flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-[#0F172A]/20 rounded-2xl p-1">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0F172A] text-xl font-bold text-white shadow-sm">
-            P
-          </div>
-          <span className="text-2xl font-extrabold tracking-tight text-[#0F172A]">
-            PathPilot
-          </span>
-        </Link>
-        <p className="mt-2 text-sm font-medium text-slate-500">
-          Create your account to start your structured career path
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-blue-50/40 text-[#0F172A] flex items-center justify-center p-4 sm:p-6 lg:p-10 font-sans antialiased">
+      <div className="w-full max-w-6xl rounded-3xl border border-slate-200/90 bg-white shadow-xl overflow-hidden grid lg:grid-cols-12 min-h-[640px]">
+        {/* LEFT PANEL: Illustration & Feature Highlights (42% width on desktop) */}
+        <div className="lg:col-span-5 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] p-8 lg:p-12 text-white flex flex-col justify-between relative overflow-hidden hidden md:flex">
+          {/* Subtle glow effect */}
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl pointer-events-none" />
 
-      {/* Register Card */}
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xs md:p-10">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-[#0F172A]">
-            Create Student Account
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Fill in your details below to get started.
-          </p>
+          <div className="relative z-10 space-y-6">
+            <Link to="/" className="inline-flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-xl p-1">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2563EB] text-white font-extrabold text-lg shadow-sm group-hover:bg-blue-600 transition">
+                P
+              </div>
+              <span className="text-2xl font-extrabold text-white tracking-tight">
+                PathPilot
+              </span>
+            </Link>
+
+            {/* SVG Illustration Element */}
+            <div className="my-6 flex justify-center">
+              <svg className="w-48 h-48 text-[#2563EB]" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="30" y="40" width="140" height="110" rx="12" fill="#2563EB" fillOpacity="0.1" stroke="#2563EB" strokeWidth="2" strokeDasharray="4 4" />
+                <path d="M50 70H150" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" />
+                <path d="M50 100H120" stroke="#93C5FD" strokeWidth="3" strokeLinecap="round" />
+                <path d="M50 130H90" stroke="#93C5FD" strokeWidth="3" strokeLinecap="round" />
+                <circle cx="150" cy="120" r="16" fill="#2563EB" stroke="#60A5FA" strokeWidth="2" />
+                <path d="M145 120L149 124L156 116" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-extrabold text-white tracking-tight">
+                Start Your Tech Journey
+              </h2>
+              <p className="mt-2 text-xs text-slate-300 leading-relaxed">
+                Master industry skills, complete real projects, and track your career growth with PathPilot.
+              </p>
+            </div>
+
+            {/* 3 Feature Rows */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-3 text-xs font-semibold text-slate-200">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 font-extrabold text-[10px]">✓</span>
+                <span>Personalized Career Roadmaps</span>
+              </div>
+              <div className="flex items-center gap-3 text-xs font-semibold text-slate-200">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 font-extrabold text-[10px]">✓</span>
+                <span>Interactive Learning Modules</span>
+              </div>
+              <div className="flex items-center gap-3 text-xs font-semibold text-slate-200">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 font-extrabold text-[10px]">✓</span>
+                <span>Real Project Based Learning</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative z-10 text-[11px] text-slate-400 border-t border-slate-800 pt-4 mt-6">
+            © {new Date().getFullYear()} PathPilot Learning Platform.
+          </div>
         </div>
 
-        {error && (
-          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <svg className="h-5 w-5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div className="leading-snug">{error}</div>
+        {/* RIGHT PANEL: Form Card (58% width on desktop) */}
+        <div className="lg:col-span-7 p-6 sm:p-10 lg:p-14 flex flex-col justify-between bg-white">
+          <div className="w-full max-w-md mx-auto space-y-6">
+            {/* Mobile Header Branding */}
+            <div className="md:hidden text-center space-y-2">
+              <Link to="/" className="inline-flex items-center gap-2 group">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2563EB] text-white font-extrabold text-base shadow-xs">
+                  P
+                </div>
+                <span className="text-xl font-extrabold text-[#0F172A] tracking-tight">PathPilot</span>
+              </Link>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">
+                Create Student Account
+              </h2>
+              <p className="mt-1.5 text-xs text-slate-500 font-medium">
+                Fill in your details below to activate your learning roadmap.
+              </p>
+            </div>
+
+            {error && (
+              <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
+                <svg className="h-4 w-4 shrink-0 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="leading-snug">{error}</div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="reg-name" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+                  Full Name
+                </label>
+                <input
+                  id="reg-name"
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="John Doe"
+                  autoComplete="name"
+                  required
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 font-medium"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="reg-email" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+                  Email Address
+                </label>
+                <input
+                  id="reg-email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="student@example.com"
+                  autoComplete="email"
+                  required
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 font-medium"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="reg-password" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="reg-password"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    required
+                    minLength={6}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 pr-10 text-sm text-[#0F172A] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition focus:outline-none"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 012.122-.363c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                      </svg>
+                    ) : (
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-4 text-sm font-extrabold text-white transition hover:bg-blue-700 shadow-md shadow-blue-600/20 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Creating Account...</span>
+                  </>
+                ) : (
+                  <span>Create Student Account →</span>
+                )}
+              </button>
+            </form>
+
+            {/* Trust Indicator */}
+            <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 pt-1">
+              <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span>Protected Learning Platform</span>
+            </div>
+
+            <div className="border-t border-slate-100 pt-4 text-center">
+              <p className="text-xs text-slate-600">
+                Already have an account?{" "}
+                <Link to="/login" className="font-bold text-[#2563EB] hover:underline focus:outline-none focus:ring-1 focus:ring-[#2563EB]">
+                  Sign In
+                </Link>
+              </p>
+            </div>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="reg-name" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
-              Full Name
-            </label>
-            <input
-              id="reg-name"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="John Doe"
-              autoComplete="name"
-              required
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
-            />
+          <div className="text-center text-[11px] text-slate-400 pt-6">
+            Powered by PathPilot Ecosystem
           </div>
-
-          <div>
-            <label htmlFor="reg-email" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
-              Email Address
-            </label>
-            <input
-              id="reg-email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="student@example.com"
-              autoComplete="email"
-              required
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="reg-password" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
-              Password
-            </label>
-            <input
-              id="reg-password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              autoComplete="new-password"
-              required
-              minLength={6}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-[#0F172A] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 w-full rounded-xl bg-[#2563EB] px-4 py-3.5 text-sm font-bold text-white shadow-xs transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? "Creating Account..." : "Create Account"}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center border-t border-slate-100 pt-5">
-          <p className="text-sm text-slate-600">
-            Already have an account?{" "}
-            <Link to="/login" className="font-bold text-[#2563EB] hover:underline focus:outline-none focus:ring-1 focus:ring-[#2563EB]">
-              Sign In
-            </Link>
-          </p>
         </div>
       </div>
     </div>

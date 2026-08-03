@@ -152,9 +152,17 @@ function AppLayout() {
               </button>
 
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  {headerInfo.category}
-                </p>
+                <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
+                  <Link to="/student/dashboard" className="hover:text-[#2563EB] transition">
+                    Dashboard
+                  </Link>
+                  {location.pathname !== "/student/dashboard" && (
+                    <>
+                      <span>/</span>
+                      <span className="text-[#2563EB] font-bold">{headerInfo.title}</span>
+                    </>
+                  )}
+                </nav>
                 <h1 className="text-lg font-extrabold text-[#0F172A] tracking-tight sm:text-xl">
                   {headerInfo.title}
                 </h1>
