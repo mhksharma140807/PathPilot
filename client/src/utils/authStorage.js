@@ -5,7 +5,7 @@
 export const getStoredToken = () => {
   try {
     return localStorage.getItem("token") || null;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -17,7 +17,9 @@ export const setStoredToken = (token) => {
     } else {
       localStorage.removeItem("token");
     }
-  } catch (e) {}
+  } catch {
+    // Ignore storage write errors
+  }
 };
 
 export const getStoredUser = () => {
@@ -25,7 +27,7 @@ export const getStoredUser = () => {
     const userStr = localStorage.getItem("user");
     if (!userStr) return null;
     return JSON.parse(userStr);
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -37,12 +39,16 @@ export const setStoredUser = (user) => {
     } else {
       localStorage.removeItem("user");
     }
-  } catch (e) {}
+  } catch {
+    // Ignore storage write errors
+  }
 };
 
 export const clearAuthSession = () => {
   try {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-  } catch (e) {}
+  } catch {
+    // Ignore storage clear errors
+  }
 };

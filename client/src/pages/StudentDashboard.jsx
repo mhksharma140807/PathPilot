@@ -55,7 +55,6 @@ function StudentDashboard() {
   const activeIndex = currentModuleIndex !== -1 ? currentModuleIndex : 0;
   const currentModule = modules[activeIndex] || null;
   const currentModuleProg = currentModule ? (currentModule.progressPercentage || currentModule.progress || 0) : 0;
-  const upcomingModule = modules[activeIndex + 1] || null;
 
   // Dynamic motivational message based on overall progress
   const motivationalMessage = useMemo(() => {

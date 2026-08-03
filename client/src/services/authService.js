@@ -6,7 +6,8 @@ export const loginUser = async (email, password) => {
     return response.data;
   } catch (error) {
     throw new Error(
-      error.response?.data?.message || "Login failed"
+      error.response?.data?.message || "Login failed",
+      { cause: error }
     );
   }
 };
@@ -17,7 +18,8 @@ export const registerUser = async (userData) => {
     return response.data;
   } catch (error) {
     throw new Error(
-      error.response?.data?.message || "Registration failed"
+      error.response?.data?.message || "Registration failed",
+      { cause: error }
     );
   }
 };
@@ -28,7 +30,8 @@ export const getCurrentUser = async () => {
     return response.data;
   } catch (error) {
     throw new Error(
-      error.response?.data?.message || "Failed to fetch user details"
+      error.response?.data?.message || "Failed to fetch user details",
+      { cause: error }
     );
   }
 };

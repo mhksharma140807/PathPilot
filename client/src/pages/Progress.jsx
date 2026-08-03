@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getStudentDashboard } from "../services/dashboardService";
 import ProgressBar from "../components/ProgressBar";
 import StatusBadge from "../components/StatusBadge";
