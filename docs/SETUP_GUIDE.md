@@ -226,6 +226,14 @@ git push origin feature/new-module
 
 ---
 
+### MongoDB Atlas DNS Note
+
+If MongoDB Atlas SRV lookup fails on some Windows/ISP networks with:
+
+querySrv ECONNREFUSED
+
+PathPilot includes a development-only DNS fallback using Google Public DNS (8.8.8.8 / 8.8.4.4). This runs only in development and is ignored in production.
+
 ### 2. Missing `.env` File Error
 
 #### Error Message
