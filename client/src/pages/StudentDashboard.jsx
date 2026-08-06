@@ -464,23 +464,21 @@ function StudentDashboard() {
                           return (
                             <div
                               key={mod.moduleId || mod._id || idx}
-                              className={`flex items-center justify-between rounded-2xl border p-4 transition-all duration-200 ${
-                                isCurrent
+                              className={`flex items-center justify-between rounded-2xl border p-4 transition-all duration-200 ${isCurrent
                                   ? "border-[#2563EB] bg-blue-50/40 ring-1 ring-[#2563EB]/30"
                                   : isDone
-                                  ? "border-emerald-200 bg-emerald-50/30"
-                                  : "border-slate-100 bg-slate-50/80"
-                              }`}
+                                    ? "border-emerald-200 bg-emerald-50/30"
+                                    : "border-slate-100 bg-slate-50/80"
+                                }`}
                             >
                               <div className="flex items-center gap-3 min-w-0 pr-2">
                                 <span
-                                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-extrabold ${
-                                    isDone
+                                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-extrabold ${isDone
                                       ? "bg-emerald-600 text-white"
                                       : isCurrent
-                                      ? "bg-[#2563EB] text-white"
-                                      : "bg-slate-200 text-slate-600"
-                                  }`}
+                                        ? "bg-[#2563EB] text-white"
+                                        : "bg-slate-200 text-slate-600"
+                                    }`}
                                 >
                                   {isDone ? "✓" : `0${idx + 1}`}
                                 </span>
@@ -495,13 +493,12 @@ function StudentDashboard() {
                               </div>
 
                               <span
-                                className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                                  isDone
+                                className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${isDone
                                     ? "bg-emerald-100 text-emerald-800"
                                     : isCurrent
-                                    ? "bg-blue-100 text-[#2563EB]"
-                                    : "bg-slate-200 text-slate-600"
-                                }`}
+                                      ? "bg-blue-100 text-[#2563EB]"
+                                      : "bg-slate-200 text-slate-600"
+                                  }`}
                               >
                                 {isDone ? "Completed" : isCurrent ? `${prog}%` : "Next Up"}
                               </span>
@@ -556,14 +553,12 @@ function StudentDashboard() {
                       {upcomingGoals.map((goal) => (
                         <div
                           key={goal.id}
-                          className={`flex items-center justify-between p-3 rounded-2xl border text-xs transition-colors ${
-                            goal.completed ? "border-emerald-200 bg-emerald-50/40" : "border-slate-100 bg-[#F8FAFC]"
-                          }`}
+                          className={`flex items-center justify-between p-3 rounded-2xl border text-xs transition-colors ${goal.completed ? "border-emerald-200 bg-emerald-50/40" : "border-slate-100 bg-[#F8FAFC]"
+                            }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
-                              goal.completed ? "bg-emerald-600 text-white" : "border border-slate-300 text-slate-400"
-                            }`}>
+                            <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${goal.completed ? "bg-emerald-600 text-white" : "border border-slate-300 text-slate-400"
+                              }`}>
                               {goal.completed ? "✓" : ""}
                             </span>
                             <span className={`font-semibold truncate ${goal.completed ? "text-slate-500 line-through" : "text-[#0F172A]"}`}>
@@ -589,11 +584,10 @@ function StudentDashboard() {
                       {achievements.map((ach) => (
                         <div
                           key={ach.id}
-                          className={`rounded-2xl border p-3 text-center space-y-1 transition-all ${
-                            ach.unlocked
+                          className={`rounded-2xl border p-3 text-center space-y-1 transition-all ${ach.unlocked
                               ? "border-emerald-200 bg-emerald-50/50 shadow-xs"
                               : "border-slate-200 bg-slate-50/50 opacity-60 grayscale"
-                          }`}
+                            }`}
                         >
                           <div className="text-xl">{ach.icon}</div>
                           <p className="text-xs font-bold text-[#0F172A] truncate">{ach.title}</p>

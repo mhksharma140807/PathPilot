@@ -261,11 +261,10 @@ function MyCareer() {
                     return (
                       <div
                         key={idx}
-                        className={`group flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
-                          isLearned
+                        className={`group flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm ${isLearned
                             ? "bg-emerald-50/80 border-emerald-200 text-emerald-800"
                             : "bg-[#F8FAFC] border-slate-200 text-slate-700 hover:border-blue-300 hover:bg-white"
-                        }`}
+                          }`}
                       >
                         <span className="text-sm">{skill.icon}</span>
                         <span>{skill.name}</span>
@@ -362,7 +361,7 @@ function MyCareer() {
               actionText="Explore Careers"
               actionOnClick={() => {
                 const el = document.getElementById("career-catalog");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
               icon={
                 <svg className="h-8 w-8 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -390,11 +389,10 @@ function MyCareer() {
                 return (
                   <article
                     key={career._id}
-                    className={`flex flex-col justify-between rounded-3xl border p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${
-                      isSelected
+                    className={`flex flex-col justify-between rounded-3xl border p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${isSelected
                         ? "border-[#2563EB] bg-white ring-2 ring-[#2563EB]/20"
                         : "border-slate-200 bg-white hover:border-slate-300"
-                    }`}
+                      }`}
                   >
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-2">
@@ -431,17 +429,16 @@ function MyCareer() {
                         type="button"
                         disabled={selectingId === career._id || isSelected}
                         onClick={() => handleSelectCareer(career._id)}
-                        className={`flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-xs font-extrabold transition-all duration-200 active:scale-[0.98] ${
-                          isSelected
+                        className={`flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-xs font-extrabold transition-all duration-200 active:scale-[0.98] ${isSelected
                             ? "bg-slate-100 text-slate-400 cursor-default"
                             : "bg-[#2563EB] text-white hover:bg-blue-700 shadow-md shadow-blue-600/20 disabled:opacity-60"
-                        }`}
+                          }`}
                       >
                         {selectingId === career._id
                           ? "Selecting..."
                           : isSelected
-                          ? "Active Career Path"
-                          : "Select Career Path"}
+                            ? "Active Career Path"
+                            : "Select Career Path"}
                       </button>
                     </div>
                   </article>
