@@ -1,10 +1,11 @@
 const Module = require("../models/Module");
 const Career = require("../models/Career");
+const Phase = require("../models/Phase");
 
 // Create a module for a career
 const createModule = async (req, res) => {
   try {
-    const { career, title, description, order, estimatedHours } = req.body;
+    const { career, title, description, order, estimatedHours, phase } = req.body;
 
     const careerExists = await Career.findById(career);
 
@@ -12,6 +13,22 @@ const createModule = async (req, res) => {
       return res.status(404).json({
         message: "Career not found",
       });
+    }
+
+    if (phase) {
+      const phaseExists = await Phase.findById(phase);
+
+      if (!phaseExists) {
+        return res.status(404).json({
+          message: "Phase not found",
+        });
+      }
+
+      if (phaseExists.career.toString() !== career.toString()) {
+        return res.status(400).json({
+          message: "Phase does not belong to the specified career",
+        });
+      }
     }
 
     const existingModule = await Module.findOne({ career, order });
@@ -28,6 +45,7 @@ const createModule = async (req, res) => {
       description,
       order,
       estimatedHours,
+      phase: phase || null,
     });
 
     res.status(201).json({

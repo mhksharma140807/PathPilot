@@ -52,6 +52,19 @@ const moduleSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    phase: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Phase",
+      default: null,
+    },
+
+    prerequisites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Module",
+      },
+    ],
   },
   {
     timestamps: true,
