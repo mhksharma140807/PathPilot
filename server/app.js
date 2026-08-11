@@ -7,6 +7,7 @@ const moduleRoutes = require("./routes/moduleRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const phaseRoutes = require("./routes/phaseRoutes");
 
 const app = express();
 
@@ -38,5 +39,6 @@ app.use("/api/modules", moduleRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/phases", phaseRoutes);
 
 module.exports = app;
