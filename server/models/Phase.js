@@ -30,6 +30,13 @@ const phaseSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    prerequisitePhases: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Phase",
+      },
+    ],
   },
   {
     timestamps: true,

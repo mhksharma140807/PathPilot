@@ -37,6 +37,18 @@ const moduleProgressSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    completedLessons: [
+      {
+        lessonId: {
+          type: mongoose.Schema.Types.ObjectId,
+        },
+        completedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
