@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { getMyCareer } from "../services/careerService";
-import { getModulesByCareer } from "../services/moduleService";
+import { getModulesByCareer, getModulesByPhase } from "../services/moduleService";
+import { getPhasesByCareer } from "../services/phaseService";
 import { getMyProgress } from "../services/progressService";
 import ModuleCard from "../components/ModuleCard";
 import LoadingState from "../components/LoadingState";
@@ -16,6 +17,12 @@ function LearningModules() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all");
+
+  // Phase-aware state
+  const [phases, setPhases] = useState([]);
+  const [selectedPhaseId, setSelectedPhaseId] = useState(null); // null = "All Modules"
+  const [phaseModulesCache, setPhaseModulesCache] = useState({});
+  const [phaseLoading, setPhaseLoading] = useState(false);
 
   const loadData = async () => {
     try {
@@ -43,9 +50,10 @@ function LearningModules() {
 
       setCareer(selectedCareer);
 
-      const [moduleResponse, progressResponse] = await Promise.all([
+      const [moduleResponse, progressResponse, phaseResponse] = await Promise.all([
         getModulesByCareer(careerId),
         getMyProgress().catch(() => ({ progress: [] })),
+        getPhasesByCareer(careerId).catch(() => ({ phases: [] })),
       ]);
 
       const fetchedModules =
@@ -66,6 +74,10 @@ function LearningModules() {
       });
       setProgressMap(map);
 
+      const fetchedPhases = phaseResponse?.phases || phaseResponse?.data?.phases || phaseResponse?.data || [];
+      const sortedPhases = [...fetchedPhases].sort((a, b) => (a.order || 0) - (b.order || 0));
+      setPhases(sortedPhases);
+
     } catch (err) {
       console.error("Failed to load learning modules:", err);
       setError(err.message || "Unable to load your learning modules.");
@@ -78,43 +90,67 @@ function LearningModules() {
     loadData();
   }, []);
 
-  const totalCount = modules.length;
+  // Phase tab handler — lazy-loads and caches per phase
+  const handlePhaseSelect = async (phaseId) => {
+    setSelectedPhaseId(phaseId);
+    if (phaseId === null) return; // "All Modules" — use career-wide `modules`
+    if (phaseModulesCache[phaseId]) return; // already cached
+    try {
+      setPhaseLoading(true);
+      const res = await getModulesByPhase(phaseId);
+      const fetched = res?.modules || res?.data?.modules || res?.data || [];
+      setPhaseModulesCache((prev) => ({ ...prev, [phaseId]: fetched }));
+    } catch (err) {
+      console.error("Failed to load phase modules:", err);
+      // Fall back silently — activeModules will be empty for this phase
+      setPhaseModulesCache((prev) => ({ ...prev, [phaseId]: [] }));
+    } finally {
+      setPhaseLoading(false);
+    }
+  };
+
+  // Active module list: career-wide when selectedPhaseId is null, phase-scoped otherwise
+  const activeModules = selectedPhaseId === null
+    ? modules
+    : (phaseModulesCache[selectedPhaseId] || []);
+
+  const totalCount = activeModules.length;
   const completedCount = useMemo(
-    () => modules.filter((m) => (progressMap[m._id || m.id] || 0) >= 100).length,
-    [modules, progressMap]
+    () => activeModules.filter((m) => (progressMap[m._id || m.id] || 0) >= 100).length,
+    [activeModules, progressMap]
   );
   const inProgressCount = useMemo(
-    () => modules.filter((m) => {
+    () => activeModules.filter((m) => {
       const p = progressMap[m._id || m.id] || 0;
       return p > 0 && p < 100;
     }).length,
-    [modules, progressMap]
+    [activeModules, progressMap]
   );
   const remainingCount = totalCount - completedCount;
 
   const overallPct = useMemo(() => {
     if (totalCount === 0) return 0;
-    const sum = modules.reduce((acc, m) => acc + (progressMap[m._id || m.id] || 0), 0);
+    const sum = activeModules.reduce((acc, m) => acc + (progressMap[m._id || m.id] || 0), 0);
     return Math.round((sum / (totalCount * 100)) * 100);
-  }, [modules, totalCount, progressMap]);
+  }, [activeModules, totalCount, progressMap]);
 
   const totalEstHours = useMemo(() => {
-    return modules.reduce((acc, m) => acc + (m.estimatedHours || 2), 0);
-  }, [modules]);
+    return activeModules.reduce((acc, m) => acc + (m.estimatedHours || 2), 0);
+  }, [activeModules]);
 
   const currentModule = useMemo(() => {
-    return modules.find((m) => (progressMap[m._id || m.id] || 0) < 100) || modules[0] || null;
-  }, [modules, progressMap]);
+    return activeModules.find((m) => (progressMap[m._id || m.id] || 0) < 100) || activeModules[0] || null;
+  }, [activeModules, progressMap]);
 
   const filteredModules = useMemo(() => {
-    return modules.filter((m) => {
+    return activeModules.filter((m) => {
       const p = progressMap[m._id || m.id] || 0;
       if (filter === "completed") return p >= 100;
       if (filter === "in_progress") return p > 0 && p < 100;
       if (filter === "not_started") return p === 0;
       return true;
     });
-  }, [modules, progressMap, filter]);
+  }, [activeModules, progressMap, filter]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 space-y-8">
@@ -224,6 +260,51 @@ function LearningModules() {
               </div>
             </div>
           </section>
+
+          {/* PHASE SELECTOR — shown only when career has phases */}
+          {phases.length > 0 && (
+            <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 shrink-0">
+                  Browse by Phase
+                </span>
+                <div className="inline-flex flex-wrap gap-1.5 rounded-xl bg-slate-100 p-1 text-xs font-semibold overflow-x-auto">
+                  {/* All Modules tab */}
+                  <button
+                    type="button"
+                    onClick={() => handlePhaseSelect(null)}
+                    className={`rounded-lg px-3.5 py-1.5 transition-all duration-200 whitespace-nowrap ${
+                      selectedPhaseId === null
+                        ? "bg-[#2563EB] text-white shadow-xs"
+                        : "text-slate-600 hover:text-[#0F172A]"
+                    }`}
+                  >
+                    All Modules
+                  </button>
+                  {/* One tab per phase */}
+                  {phases.map((phase) => (
+                    <button
+                      key={phase._id}
+                      type="button"
+                      onClick={() => handlePhaseSelect(phase._id)}
+                      className={`rounded-lg px-3.5 py-1.5 transition-all duration-200 whitespace-nowrap ${
+                        selectedPhaseId === phase._id
+                          ? "bg-[#2563EB] text-white shadow-xs"
+                          : "text-slate-600 hover:text-[#0F172A]"
+                      }`}
+                    >
+                      {phase.title || `Phase ${phase.order}`}
+                    </button>
+                  ))}
+                  {phaseLoading && (
+                    <span className="px-2 py-1.5 text-xs text-slate-400 animate-pulse">
+                      Loading…
+                    </span>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* 7. RESPONSIVE GRID LAYOUT (3 columns desktop, 2 tablet, 1 mobile) */}
           <section className="space-y-6">
