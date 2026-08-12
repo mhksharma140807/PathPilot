@@ -90,6 +90,34 @@ const getModulesByCareer = async (req, res) => {
   }
 };
 
+// Get all active modules belonging to a phase
+const getModulesByPhase = async (req, res) => {
+  try {
+    const phaseExists = await Phase.findById(req.params.phaseId);
+
+    if (!phaseExists) {
+      return res.status(404).json({
+        message: "Phase not found",
+      });
+    }
+
+    const modules = await Module.find({
+      phase: req.params.phaseId,
+      isActive: true,
+    }).sort({ order: 1 });
+
+    res.status(200).json({
+      count: modules.length,
+      modules,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch modules",
+      error: error.message,
+    });
+  }
+};
+
 // Get single module by ID
 const getModuleById = async (req, res) => {
   try {
@@ -115,5 +143,6 @@ const getModuleById = async (req, res) => {
 module.exports = {
   createModule,
   getModulesByCareer,
+  getModulesByPhase,
   getModuleById,
 };
