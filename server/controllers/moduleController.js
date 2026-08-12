@@ -31,12 +31,22 @@ const createModule = async (req, res) => {
       }
     }
 
-    const existingModule = await Module.findOne({ career, order });
+    if (phase) {
+      const existingModule = await Module.findOne({ phase, order });
 
-    if (existingModule) {
-      return res.status(400).json({
-        message: "A module with this order already exists for this career",
-      });
+      if (existingModule) {
+        return res.status(400).json({
+          message: "A module with this order already exists for this phase",
+        });
+      }
+    } else {
+      const existingModule = await Module.findOne({ career, order });
+
+      if (existingModule) {
+        return res.status(400).json({
+          message: "A module with this order already exists for this career",
+        });
+      }
     }
 
     const newModule = await Module.create({

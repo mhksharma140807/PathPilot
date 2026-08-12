@@ -71,6 +71,12 @@ const moduleSchema = new mongoose.Schema(
   }
 );
 
-moduleSchema.index({ career: 1, order: 1 }, { unique: true });
+moduleSchema.index(
+  { phase: 1, order: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { phase: { $type: "objectId" } },
+  }
+);
 
 module.exports = mongoose.model("Module", moduleSchema);
