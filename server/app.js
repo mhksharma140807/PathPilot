@@ -10,6 +10,8 @@ const curriculumRoutes = require("./routes/curriculumRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const phaseRoutes = require("./routes/phaseRoutes");
 
+const curriculumRequirementRoutes = require("./routes/curriculumRequirementRoutes");
+
 const app = express();
 
 console.log("FRONTEND_URL =", process.env.FRONTEND_URL);
@@ -42,5 +44,6 @@ app.use("/api/progress/curriculum", curriculumRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/phases", phaseRoutes);
+app.use("/api/curriculum-requirements", curriculumRequirementRoutes);
 
 module.exports = app;

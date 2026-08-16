@@ -2,6 +2,64 @@ const CareerEnrollment = require("../models/CareerEnrollment");
 const Phase = require("../models/Phase");
 const Module = require("../models/Module");
 const ModuleProgress = require("../models/ModuleProgress");
+const CurriculumRequirement = require("../models/CurriculumRequirement");
+
+// Helper function to calculate phase completion metrics based on requirements or fallback
+const calculatePhaseRequirementMetrics = (
+  phaseModules,
+  phaseReqs,
+  completedModuleIdsSet
+) => {
+  if (!phaseReqs || phaseReqs.length === 0) {
+    // Fallback rule: If phase has NO CurriculumRequirement documents,
+    // all active modules in the phase are required.
+    const totalRequiredModules = phaseModules.length;
+    const completedModules = phaseModules.filter((mod) =>
+      completedModuleIdsSet.has(mod._id.toString())
+    ).length;
+    const isComplete =
+      totalRequiredModules > 0 && completedModules === totalRequiredModules;
+
+    return { totalRequiredModules, completedModules, isComplete };
+  }
+
+  // Requirement documents exist
+  let totalRequiredModules = 0;
+  let completedModules = 0;
+  let allBlockingSatisfied = true;
+  let blockingCount = 0;
+
+  phaseReqs.forEach((req) => {
+    const modIdStrings = req.modules.map((m) => m.toString());
+    const completedCountInReq = modIdStrings.filter((mId) =>
+      completedModuleIdsSet.has(mId)
+    ).length;
+
+    if (req.type === "required") {
+      blockingCount++;
+      const target = req.minRequired || 1;
+      totalRequiredModules += target;
+      completedModules += Math.min(completedCountInReq, target);
+      if (completedCountInReq < target) {
+        allBlockingSatisfied = false;
+      }
+    } else if (req.type === "choice_group") {
+      blockingCount++;
+      const target = req.minRequired;
+      totalRequiredModules += target;
+      completedModules += Math.min(completedCountInReq, target);
+      if (completedCountInReq < target) {
+        allBlockingSatisfied = false;
+      }
+    } else if (req.type === "optional") {
+      // Optional requirements do not block completion and minRequired is 0
+    }
+  });
+
+  const isComplete = blockingCount > 0 ? allBlockingSatisfied : true;
+
+  return { totalRequiredModules, completedModules, isComplete };
+};
 
 const getCurriculumState = async (req, res) => {
   try {
@@ -30,6 +88,21 @@ const getCurriculumState = async (req, res) => {
       career: careerId,
       isActive: true,
     }).sort({ order: 1 });
+
+    // Fetch curriculum requirements for active phases
+    const phaseIds = phases.map((p) => p._id);
+    const requirements = await CurriculumRequirement.find({
+      phase: { $in: phaseIds },
+    });
+
+    const requirementsByPhaseMap = new Map();
+    requirements.forEach((reqDoc) => {
+      const phaseIdStr = reqDoc.phase.toString();
+      if (!requirementsByPhaseMap.has(phaseIdStr)) {
+        requirementsByPhaseMap.set(phaseIdStr, []);
+      }
+      requirementsByPhaseMap.get(phaseIdStr).push(reqDoc);
+    });
 
     // Fetch progress records for the student in this career
     const progressRecords = await ModuleProgress.find({
@@ -77,14 +150,13 @@ const getCurriculumState = async (req, res) => {
     phases.forEach((phase) => {
       const phaseIdStr = phase._id.toString();
       const phaseModules = modulesByPhaseMap.get(phaseIdStr) || [];
-      const totalRequiredModules = phaseModules.length;
+      const phaseReqs = requirementsByPhaseMap.get(phaseIdStr) || [];
 
-      const completedModulesCount = phaseModules.filter((mod) =>
-        completedModuleIdsSet.has(mod._id.toString())
-      ).length;
-
-      const isComplete =
-        totalRequiredModules > 0 && completedModulesCount === totalRequiredModules;
+      const { isComplete } = calculatePhaseRequirementMetrics(
+        phaseModules,
+        phaseReqs,
+        completedModuleIdsSet
+      );
 
       if (isComplete) {
         completedPhaseIdsSet.add(phaseIdStr);
@@ -106,13 +178,14 @@ const getCurriculumState = async (req, res) => {
         );
 
       const phaseModules = modulesByPhaseMap.get(phaseIdStr) || [];
-      const totalRequiredModules = phaseModules.length;
+      const phaseReqs = requirementsByPhaseMap.get(phaseIdStr) || [];
 
-      const completedModulesCount = phaseModules.filter((mod) =>
-        completedModuleIdsSet.has(mod._id.toString())
-      ).length;
-
-      const isComplete = completedPhaseIdsSet.has(phaseIdStr);
+      const { totalRequiredModules, completedModules, isComplete } =
+        calculatePhaseRequirementMetrics(
+          phaseModules,
+          phaseReqs,
+          completedModuleIdsSet
+        );
 
       const formattedModules = phaseModules.map((mod) => {
         const modIdStr = mod._id.toString();
@@ -155,7 +228,7 @@ const getCurriculumState = async (req, res) => {
         order: phase.order,
         isUnlocked,
         isComplete,
-        completedModules: completedModulesCount,
+        completedModules,
         totalRequiredModules,
         modules: formattedModules,
       };
