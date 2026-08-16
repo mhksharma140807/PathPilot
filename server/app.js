@@ -6,6 +6,7 @@ const careerRoutes = require("./routes/careerRoutes");
 const moduleRoutes = require("./routes/moduleRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const progressRoutes = require("./routes/progressRoutes");
+const curriculumRoutes = require("./routes/curriculumRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const phaseRoutes = require("./routes/phaseRoutes");
 
@@ -37,6 +38,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/careers", careerRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
+app.use("/api/progress/curriculum", curriculumRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/phases", phaseRoutes);
