@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getModuleById } from "../services/moduleService";
-import { getMyProgress, updateModuleProgress } from "../services/progressService";
+import { getMyProgress, markLessonComplete } from "../services/progressService";
 import ProgressBar from "../components/ProgressBar";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -18,7 +18,7 @@ function ModuleDetails() {
   const [module, setModule] = useState(null);
   const [progress, setProgress] = useState(0);
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
-  const [completedLessonIndices, setCompletedLessonIndices] = useState([]);
+  const [completedLessonIds, setCompletedLessonIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
@@ -65,28 +65,35 @@ function ModuleDetails() {
 
       const progList = progressData?.progress || [];
       let currentProg = 0;
+      let fetchedCompletedLessons = [];
+
       if (Array.isArray(progList)) {
         const found = progList.find(
           (item) => item.module?._id === moduleId || item.module === moduleId
         );
         currentProg = found?.progressPercentage ?? found?.progress ?? 0;
+        fetchedCompletedLessons = found?.completedLessons || [];
         setProgress(currentProg);
       }
+
+      const doneIds = fetchedCompletedLessons
+        .map((cl) => (typeof cl === "object" ? cl?.lessonId : cl))
+        .filter(Boolean)
+        .map((id) => id.toString());
+
+      setCompletedLessonIds(doneIds);
 
       const lessonsList = fetchedMod?.lessons?.length > 0
         ? fetchedMod.lessons
         : getDefaultLessons(fetchedMod?.title);
 
-      const totalL = lessonsList.length;
-      const numCompleted = Math.round((currentProg / 100) * totalL);
-      const completedIndices = [];
-      for (let i = 0; i < numCompleted; i++) {
-        completedIndices.push(i);
-      }
-      setCompletedLessonIndices(completedIndices);
+      const doneSet = new Set(doneIds);
+      const firstIncompleteIdx = lessonsList.findIndex(
+        (les) => les._id && !doneSet.has(les._id.toString())
+      );
 
-      if (numCompleted < totalL) {
-        setActiveLessonIndex(numCompleted);
+      if (firstIncompleteIdx !== -1) {
+        setActiveLessonIndex(firstIncompleteIdx);
       } else {
         setActiveLessonIndex(0);
       }
@@ -116,35 +123,51 @@ function ModuleDetails() {
     : defaultObjectives;
 
   const currentLesson = lessons[activeLessonIndex] || lessons[0];
+  const currentLessonIdStr = currentLesson?._id ? currentLesson._id.toString() : null;
+  const isCurrentLessonDone = currentLessonIdStr ? completedLessonIds.includes(currentLessonIdStr) : false;
 
-  const handleMarkLessonComplete = async (indexToComplete) => {
+  const handleMarkLessonComplete = async (lessonToComplete) => {
+    const targetLessonId = lessonToComplete?._id;
+
+    if (!targetLessonId) {
+      toast.error("Lesson identifier not found.");
+      return;
+    }
+
     try {
       setUpdating(true);
       setError("");
 
-      let updatedIndices = [...completedLessonIndices];
-      if (!updatedIndices.includes(indexToComplete)) {
-        updatedIndices.push(indexToComplete);
+      const res = await markLessonComplete(moduleId, targetLessonId);
+      const updatedProgress = res?.progress;
+
+      if (updatedProgress) {
+        const newPercentage = updatedProgress.progressPercentage ?? 0;
+        setProgress(newPercentage);
+
+        const rawCompletedLessons = updatedProgress.completedLessons || [];
+        const updatedIds = rawCompletedLessons
+          .map((cl) => (typeof cl === "object" ? cl?.lessonId : cl))
+          .filter(Boolean)
+          .map((id) => id.toString());
+
+        setCompletedLessonIds(updatedIds);
+
+        if (newPercentage >= 100) {
+          toast.success("Module completed! Outstanding work.");
+        } else {
+          toast.success(res.message || `Lesson marked complete (${newPercentage}%)`);
+        }
       }
 
-      setCompletedLessonIndices(updatedIndices);
-
-      const totalL = lessons.length;
-      const newProgress = Math.min(Math.round((updatedIndices.length / totalL) * 100), 100);
-
-      await updateModuleProgress(moduleId, newProgress);
-      setProgress(newProgress);
-      if (newProgress >= 100) {
-        toast.success("Module completed! Outstanding work.");
-      } else {
-        toast.success(`Lesson marked complete (${newProgress}%)`);
-      }
-
-      if (indexToComplete + 1 < totalL) {
-        setActiveLessonIndex(indexToComplete + 1);
+      if (activeLessonIndex + 1 < lessons.length) {
+        setActiveLessonIndex(activeLessonIndex + 1);
       }
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || "Unable to update lesson progress.";
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to update lesson progress.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -223,7 +246,7 @@ function ModuleDetails() {
                 <p className="mt-1 text-xs text-slate-600">
                   {progress >= 100
                     ? "Congratulations! You have completed all lessons in this learning module."
-                    : `Completed ${completedLessonIndices.length} of ${lessons.length} lessons.`}
+                    : `Completed ${completedLessonIds.length} of ${lessons.length} lessons.`}
                 </p>
               </div>
 
@@ -261,11 +284,12 @@ function ModuleDetails() {
                 <div className="space-y-2">
                   {lessons.map((les, idx) => {
                     const isActive = idx === activeLessonIndex;
-                    const isDone = completedLessonIndices.includes(idx);
+                    const lesIdStr = les._id ? les._id.toString() : null;
+                    const isDone = lesIdStr ? completedLessonIds.includes(lesIdStr) : false;
 
                     return (
                       <button
-                        key={idx}
+                        key={les._id || idx}
                         type="button"
                         onClick={() => setActiveLessonIndex(idx)}
                         className={`w-full flex items-center justify-between rounded-xl px-4 py-3 text-left text-xs font-semibold transition ${
@@ -348,11 +372,11 @@ function ModuleDetails() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      disabled={updating || completedLessonIndices.includes(activeLessonIndex)}
-                      onClick={() => handleMarkLessonComplete(activeLessonIndex)}
+                      disabled={updating || isCurrentLessonDone || !currentLesson?._id}
+                      onClick={() => handleMarkLessonComplete(currentLesson)}
                       className="rounded-xl bg-[#2563EB] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-blue-700 shadow-xs disabled:opacity-60"
                     >
-                      {completedLessonIndices.includes(activeLessonIndex)
+                      {isCurrentLessonDone
                         ? "✓ Lesson Completed"
                         : updating
                         ? "Saving..."
