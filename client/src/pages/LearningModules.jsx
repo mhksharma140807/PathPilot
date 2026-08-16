@@ -3,14 +3,16 @@ import { Link } from "react-router-dom";
 import { getMyCareer } from "../services/careerService";
 import { getModulesByCareer, getModulesByPhase } from "../services/moduleService";
 import { getPhasesByCareer } from "../services/phaseService";
-import { getMyProgress } from "../services/progressService";
+import { getMyProgress, getCurriculumState } from "../services/progressService";
 import ModuleCard from "../components/ModuleCard";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 import ProgressBar from "../components/ProgressBar";
+import { useToast } from "../context/ToastContext";
 
 function LearningModules() {
+  const toast = useToast();
   const [modules, setModules] = useState([]);
   const [career, setCareer] = useState(null);
   const [progressMap, setProgressMap] = useState({});
@@ -23,6 +25,10 @@ function LearningModules() {
   const [selectedPhaseId, setSelectedPhaseId] = useState(null); // null = "All Modules"
   const [phaseModulesCache, setPhaseModulesCache] = useState({});
   const [phaseLoading, setPhaseLoading] = useState(false);
+
+  // Unlock state maps from curriculum API
+  const [moduleUnlockMap, setModuleUnlockMap] = useState({});
+  const [phaseUnlockMap, setPhaseUnlockMap] = useState({});
 
   const loadData = async () => {
     try {
@@ -50,10 +56,11 @@ function LearningModules() {
 
       setCareer(selectedCareer);
 
-      const [moduleResponse, progressResponse, phaseResponse] = await Promise.all([
+      const [moduleResponse, progressResponse, phaseResponse, curriculumResponse] = await Promise.all([
         getModulesByCareer(careerId),
         getMyProgress().catch(() => ({ progress: [] })),
         getPhasesByCareer(careerId).catch(() => ({ phases: [] })),
+        getCurriculumState().catch(() => null),
       ]);
 
       const fetchedModules =
@@ -78,6 +85,26 @@ function LearningModules() {
       const sortedPhases = [...fetchedPhases].sort((a, b) => (a.order || 0) - (b.order || 0));
       setPhases(sortedPhases);
 
+      // Process curriculum state for module & phase unlock maps
+      const modUnlockMap = {};
+      const phUnlockMap = {};
+      if (curriculumResponse?.phases && Array.isArray(curriculumResponse.phases)) {
+        curriculumResponse.phases.forEach((p) => {
+          if (p._id) {
+            phUnlockMap[p._id.toString()] = p.isUnlocked;
+          }
+          if (Array.isArray(p.modules)) {
+            p.modules.forEach((m) => {
+              if (m._id) {
+                modUnlockMap[m._id.toString()] = m.isUnlocked;
+              }
+            });
+          }
+        });
+      }
+      setModuleUnlockMap(modUnlockMap);
+      setPhaseUnlockMap(phUnlockMap);
+
     } catch (err) {
       console.error("Failed to load learning modules:", err);
       setError(err.message || "Unable to load your learning modules.");
@@ -92,6 +119,13 @@ function LearningModules() {
 
   // Phase tab handler — lazy-loads and caches per phase
   const handlePhaseSelect = async (phaseId) => {
+    if (phaseId && phaseUnlockMap[phaseId] === false) {
+      if (toast && toast.info) {
+        toast.info("This phase is locked. Complete prerequisite phases to unlock.");
+      }
+      return;
+    }
+
     setSelectedPhaseId(phaseId);
     if (phaseId === null) return; // "All Modules" — use career-wide `modules`
     if (phaseModulesCache[phaseId]) return; // already cached
@@ -282,20 +316,26 @@ function LearningModules() {
                     All Modules
                   </button>
                   {/* One tab per phase */}
-                  {phases.map((phase) => (
-                    <button
-                      key={phase._id}
-                      type="button"
-                      onClick={() => handlePhaseSelect(phase._id)}
-                      className={`rounded-lg px-3.5 py-1.5 transition-all duration-200 whitespace-nowrap ${
-                        selectedPhaseId === phase._id
-                          ? "bg-[#2563EB] text-white shadow-xs"
-                          : "text-slate-600 hover:text-[#0F172A]"
-                      }`}
-                    >
-                      {phase.title || `Phase ${phase.order}`}
-                    </button>
-                  ))}
+                  {phases.map((phase) => {
+                    const isPhaseLocked = phaseUnlockMap[phase._id] === false;
+                    return (
+                      <button
+                        key={phase._id}
+                        type="button"
+                        onClick={() => handlePhaseSelect(phase._id)}
+                        className={`rounded-lg px-3.5 py-1.5 transition-all duration-200 whitespace-nowrap ${
+                          selectedPhaseId === phase._id
+                            ? "bg-[#2563EB] text-white shadow-xs"
+                            : isPhaseLocked
+                            ? "text-slate-400 bg-slate-200/60 cursor-not-allowed"
+                            : "text-slate-600 hover:text-[#0F172A]"
+                        }`}
+                      >
+                        {phase.title || `Phase ${phase.order}`}
+                        {isPhaseLocked && " 🔒"}
+                      </button>
+                    );
+                  })}
                   {phaseLoading && (
                     <span className="px-2 py-1.5 text-xs text-slate-400 animate-pulse">
                       Loading…
@@ -391,6 +431,7 @@ function LearningModules() {
                       }}
                       index={index}
                       isCurrent={isCurrent}
+                      isUnlocked={moduleUnlockMap[mId]}
                     />
                   );
                 })}

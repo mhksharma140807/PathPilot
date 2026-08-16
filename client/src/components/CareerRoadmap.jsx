@@ -150,8 +150,7 @@ function CareerRoadmap({ career, modules, overallProgress }) {
             const prog = mod.progressPercentage || mod.progress || 0;
             const isCompleted = mod.status === "completed" || prog >= 100;
             const isInProgress = mod.status === "in_progress" || (prog > 0 && prog < 100);
-            const isPreviousCompleted = idx === 0 || (modules[idx - 1]?.status === "completed" || (modules[idx - 1]?.progressPercentage || modules[idx - 1]?.progress || 0) >= 100);
-            const isLocked = !isCompleted && !isInProgress && !isPreviousCompleted;
+            const isLocked = mod.isUnlocked === false;
 
             const computedStatus = isCompleted ? "completed" : isInProgress ? "in_progress" : isLocked ? "locked" : "available";
 
