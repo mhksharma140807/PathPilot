@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import LandingPage from "../pages/LandingPage";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -12,6 +12,10 @@ import Progress from "../pages/Progress";
 import Profile from "../pages/Profile";
 import NotFound from "../pages/NotFound";
 import AppLayout from "../components/AppLayout";
+import AdminRoute from "./AdminRoute";
+import AdminLayout from "../layouts/AdminLayout";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminPlaceholder from "../pages/admin/AdminPlaceholder";
 
 function AppRoutes() {
   return (
@@ -35,6 +39,30 @@ function AppRoutes() {
           <Route path="/learning-modules/:moduleId" element={<ModuleDetails />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/profile" element={<Profile />} />
+        </Route>
+      </Route>
+
+      {/* Protected Admin Routes wrapped in AdminLayout */}
+      <Route element={<AdminRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route
+            path="/admin/careers"
+            element={<AdminPlaceholder title="Careers Management" />}
+          />
+          <Route
+            path="/admin/phases"
+            element={<AdminPlaceholder title="Phases Management" />}
+          />
+          <Route
+            path="/admin/modules"
+            element={<AdminPlaceholder title="Modules Management" />}
+          />
+          <Route
+            path="/admin/requirements"
+            element={<AdminPlaceholder title="Curriculum Requirements" />}
+          />
         </Route>
       </Route>
 

@@ -43,11 +43,16 @@ function Login() {
       setStoredToken(response.token);
       setStoredUser(response.user);
 
-      if (response.user.role === "student") {
+      if (response.user.role === "admin") {
+        toast.success("Welcome back, Administrator!");
+        const fromPath = typeof from === "string" ? from : from?.pathname || "";
+        const target = fromPath.startsWith("/admin") ? from : "/admin/dashboard";
+        navigate(target, { replace: true });
+      } else if (response.user.role === "student") {
         toast.success(`Welcome back, ${response.user.name || "Student"}!`);
         navigate(from, { replace: true });
       } else {
-        const msg = "This dashboard is currently available for students.";
+        const msg = "Unauthorized user role.";
         setError(msg);
         toast.error(msg);
       }
