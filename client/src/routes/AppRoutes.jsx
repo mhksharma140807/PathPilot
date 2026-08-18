@@ -15,6 +15,7 @@ import AppLayout from "../components/AppLayout";
 import AdminRoute from "./AdminRoute";
 import AdminLayout from "../layouts/AdminLayout";
 import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminCareers from "../pages/admin/AdminCareers";
 import AdminPlaceholder from "../pages/admin/AdminPlaceholder";
 
 function AppRoutes() {
@@ -47,10 +48,7 @@ function AppRoutes() {
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route
-            path="/admin/careers"
-            element={<AdminPlaceholder title="Careers Management" />}
-          />
+          <Route path="/admin/careers" element={<AdminCareers />} />
           <Route
             path="/admin/phases"
             element={<AdminPlaceholder title="Phases Management" />}
