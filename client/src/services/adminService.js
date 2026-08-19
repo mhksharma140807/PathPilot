@@ -111,3 +111,41 @@ export const deleteAdminModule = async (id) => {
   const response = await api.delete(`/admin/modules/${id}`);
   return response.data;
 };
+
+// Admin Curriculum Requirement Management API Services
+export const getAdminRequirements = async (params = {}) => {
+  let query = "";
+  if (typeof params === "string") {
+    query = params ? `?phase=${params}` : "";
+  } else if (params && typeof params === "object") {
+    const searchParams = new URLSearchParams();
+    if (params.career && params.career !== "all") searchParams.append("career", params.career);
+    if (params.phase && params.phase !== "all") searchParams.append("phase", params.phase);
+    if (params.type && params.type !== "all") searchParams.append("type", params.type);
+    if (params.search) searchParams.append("search", params.search);
+    const str = searchParams.toString();
+    if (str) query = `?${str}`;
+  }
+  const response = await api.get(`/admin/curriculum-requirements${query}`);
+  return response.data;
+};
+
+export const getAdminRequirementById = async (id) => {
+  const response = await api.get(`/admin/curriculum-requirements/${id}`);
+  return response.data;
+};
+
+export const createAdminRequirement = async (requirementData) => {
+  const response = await api.post("/admin/curriculum-requirements", requirementData);
+  return response.data;
+};
+
+export const updateAdminRequirement = async (id, requirementData) => {
+  const response = await api.put(`/admin/curriculum-requirements/${id}`, requirementData);
+  return response.data;
+};
+
+export const deleteAdminRequirement = async (id) => {
+  const response = await api.delete(`/admin/curriculum-requirements/${id}`);
+  return response.data;
+};

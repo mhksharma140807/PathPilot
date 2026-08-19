@@ -18,6 +18,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminCareers from "../pages/admin/AdminCareers";
 import AdminPhases from "../pages/admin/AdminPhases";
 import AdminModules from "../pages/admin/AdminModules";
+import AdminRequirements from "../pages/admin/AdminRequirements";
 import AdminPlaceholder from "../pages/admin/AdminPlaceholder";
 
 function AppRoutes() {
@@ -53,10 +54,7 @@ function AppRoutes() {
           <Route path="/admin/careers" element={<AdminCareers />} />
           <Route path="/admin/phases" element={<AdminPhases />} />
           <Route path="/admin/modules" element={<AdminModules />} />
-          <Route
-            path="/admin/requirements"
-            element={<AdminPlaceholder title="Curriculum Requirements" />}
-          />
+          <Route path="/admin/requirements" element={<AdminRequirements />} />
         </Route>
       </Route>
 
