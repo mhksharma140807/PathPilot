@@ -15,6 +15,7 @@ const adminCareerRoutes = require("./routes/adminCareerRoutes");
 const adminPhaseRoutes = require("./routes/adminPhaseRoutes");
 const adminModuleRoutes = require("./routes/adminModuleRoutes");
 const adminCurriculumRequirementRoutes = require("./routes/adminCurriculumRequirementRoutes");
+const adminUserRoutes = require("./routes/adminUserRoutes");
 
 const app = express();
 
@@ -56,6 +57,7 @@ app.use(
   "/api/admin/curriculum-requirements",
   adminCurriculumRequirementRoutes
 );
+app.use("/api/admin/users", adminUserRoutes);
 app.use("/api/admin", adminRoutes);
 
 module.exports = app;

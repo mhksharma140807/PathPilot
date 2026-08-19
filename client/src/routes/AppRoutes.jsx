@@ -20,6 +20,7 @@ import AdminPhases from "../pages/admin/AdminPhases";
 import AdminModules from "../pages/admin/AdminModules";
 import AdminRequirements from "../pages/admin/AdminRequirements";
 import AdminPlaceholder from "../pages/admin/AdminPlaceholder";
+import AdminUsers from "../pages/admin/AdminUsers";
 
 function AppRoutes() {
   return (
@@ -55,6 +56,7 @@ function AppRoutes() {
           <Route path="/admin/phases" element={<AdminPhases />} />
           <Route path="/admin/modules" element={<AdminModules />} />
           <Route path="/admin/requirements" element={<AdminRequirements />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
         </Route>
       </Route>
 

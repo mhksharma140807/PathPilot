@@ -149,3 +149,44 @@ export const deleteAdminRequirement = async (id) => {
   const response = await api.delete(`/admin/curriculum-requirements/${id}`);
   return response.data;
 };
+
+// Admin User Management API Services
+export const getAdminUsers = async (params = {}) => {
+  let query = "";
+  if (params && typeof params === "object") {
+    const searchParams = new URLSearchParams();
+    if (params.role && params.role !== "all") searchParams.append("role", params.role);
+    if (params.status && params.status !== "all") searchParams.append("status", params.status);
+    if (params.verification && params.verification !== "all") searchParams.append("verification", params.verification);
+    if (params.search) searchParams.append("search", params.search);
+    const str = searchParams.toString();
+    if (str) query = `?${str}`;
+  }
+  const response = await api.get(`/admin/users${query}`);
+  return response.data;
+};
+
+export const getAdminUserById = async (id) => {
+  const response = await api.get(`/admin/users/${id}`);
+  return response.data;
+};
+
+export const createAdminUser = async (userData) => {
+  const response = await api.post("/admin/users", userData);
+  return response.data;
+};
+
+export const updateAdminUser = async (id, userData) => {
+  const response = await api.put(`/admin/users/${id}`, userData);
+  return response.data;
+};
+
+export const toggleAdminUserStatus = async (id, isActive) => {
+  const response = await api.patch(`/admin/users/${id}/status`, { isActive });
+  return response.data;
+};
+
+export const deleteAdminUser = async (id) => {
+  const response = await api.delete(`/admin/users/${id}`);
+  return response.data;
+};
