@@ -68,3 +68,46 @@ export const deleteAdminPhase = async (id) => {
   const response = await api.delete(`/admin/phases/${id}`);
   return response.data;
 };
+
+// Admin Module Management API Services
+export const getAdminModules = async (params = {}) => {
+  let query = "";
+  if (typeof params === "string") {
+    query = params ? `?career=${params}` : "";
+  } else if (params && typeof params === "object") {
+    const searchParams = new URLSearchParams();
+    if (params.career && params.career !== "all") searchParams.append("career", params.career);
+    if (params.phase && params.phase !== "all") searchParams.append("phase", params.phase);
+    if (params.status && params.status !== "all") searchParams.append("status", params.status);
+    if (params.search) searchParams.append("search", params.search);
+    const str = searchParams.toString();
+    if (str) query = `?${str}`;
+  }
+  const response = await api.get(`/admin/modules${query}`);
+  return response.data;
+};
+
+export const getAdminModuleById = async (id) => {
+  const response = await api.get(`/admin/modules/${id}`);
+  return response.data;
+};
+
+export const createAdminModule = async (moduleData) => {
+  const response = await api.post("/admin/modules", moduleData);
+  return response.data;
+};
+
+export const updateAdminModule = async (id, moduleData) => {
+  const response = await api.put(`/admin/modules/${id}`, moduleData);
+  return response.data;
+};
+
+export const toggleAdminModuleStatus = async (id, isActive) => {
+  const response = await api.patch(`/admin/modules/${id}/status`, { isActive });
+  return response.data;
+};
+
+export const deleteAdminModule = async (id) => {
+  const response = await api.delete(`/admin/modules/${id}`);
+  return response.data;
+};
