@@ -10,6 +10,24 @@ import EmptyState from "../components/EmptyState";
 
 import { useToast } from "../context/ToastContext";
 
+const getResourceTypeBadge = (type) => {
+  switch (type) {
+    case "pdf":
+      return { label: "PDF Document", icon: "📄", bg: "bg-red-50 text-red-700 border-red-200" };
+    case "document":
+      return { label: "Doc / Notes", icon: "📝", bg: "bg-amber-50 text-amber-700 border-amber-200" };
+    case "code":
+      return { label: "Starter Code", icon: "💻", bg: "bg-purple-50 text-purple-700 border-purple-200" };
+    case "video":
+      return { label: "Video Tutorial", icon: "🎥", bg: "bg-blue-50 text-blue-700 border-blue-200" };
+    case "other":
+      return { label: "Attachment", icon: "📦", bg: "bg-slate-100 text-slate-700 border-slate-200" };
+    case "link":
+    default:
+      return { label: "Web Reference", icon: "🔗", bg: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+  }
+};
+
 function ModuleDetails() {
   const { moduleId } = useParams();
   const navigate = useNavigate();
@@ -354,6 +372,57 @@ function ModuleDetails() {
                     <div className="mt-8 rounded-2xl bg-blue-50 border border-blue-100 p-4 text-xs font-medium text-[#2563EB]">
                       <span className="font-bold block mb-1">💡 Key Takeaway:</span>
                       {currentLesson.keyTakeaway}
+                    </div>
+                  )}
+
+                  {/* Study Materials & Resources Section */}
+                  {currentLesson?.resources && currentLesson.resources.length > 0 && (
+                    <div className="mt-8 rounded-2xl border border-slate-200 bg-[#F8FAFC] p-5 space-y-3">
+                      <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
+                        <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#0F172A] flex items-center gap-2">
+                          <span>📚</span>
+                          <span>Study Materials & Resources ({currentLesson.resources.length})</span>
+                        </h3>
+                        <span className="text-[10px] text-slate-500 font-medium hidden sm:inline">
+                          Opens safely in a new tab
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        {currentLesson.resources.map((res, rIdx) => {
+                          const badge = getResourceTypeBadge(res.type);
+                          return (
+                            <div
+                              key={res._id || rIdx}
+                              className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs hover:shadow-xs transition"
+                            >
+                              <div className="min-w-0 flex-1 space-y-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${badge.bg}`}>
+                                    <span>{badge.icon}</span>
+                                    <span>{badge.label}</span>
+                                  </span>
+                                </div>
+                                <p className="text-xs font-bold text-[#0F172A] truncate">
+                                  {res.title}
+                                </p>
+                              </div>
+
+                              <a
+                                href={res.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 shrink-0 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-bold text-[#2563EB] hover:bg-blue-100 hover:text-blue-800 transition"
+                              >
+                                <span>Open Resource</span>
+                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </a>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

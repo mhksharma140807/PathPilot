@@ -5,6 +5,88 @@ const ModuleProgress = require("../models/ModuleProgress");
 const CurriculumRequirement = require("../models/CurriculumRequirement");
 const mongoose = require("mongoose");
 
+const VALID_RESOURCE_TYPES = ["pdf", "document", "link", "code", "video", "other"];
+
+const parseAndValidateLessons = (lessons) => {
+  if (!Array.isArray(lessons)) return { parsed: [] };
+
+  const parsed = [];
+  for (let i = 0; i < lessons.length; i++) {
+    const les = lessons[i];
+    if (!les || typeof les !== "object") {
+      return { error: `Lesson #${i + 1} is invalid` };
+    }
+
+    if (!les.title || !les.title.trim()) {
+      return { error: `Lesson #${i + 1} is missing a title` };
+    }
+
+    if (!les.content || !les.content.trim()) {
+      return { error: `Lesson #${i + 1} ("${les.title.trim()}") is missing content` };
+    }
+
+    const parsedResources = [];
+    if (Array.isArray(les.resources)) {
+      for (let j = 0; j < les.resources.length; j++) {
+        const resItem = les.resources[j];
+        if (!resItem || typeof resItem !== "object") {
+          return { error: `Resource #${j + 1} in Lesson #${i + 1} is invalid` };
+        }
+
+        const resTitle = (resItem.title || "").trim();
+        const resUrl = (resItem.url || "").trim();
+
+        if (!resTitle) {
+          return { error: `Resource #${j + 1} in Lesson #${i + 1} is missing a title` };
+        }
+
+        if (!resUrl) {
+          return { error: `Resource #${j + 1} ("${resTitle}") in Lesson #${i + 1} is missing a URL` };
+        }
+
+        // Validate URL protocol (only http:// or https:// allowed)
+        if (!/^https?:\/\//i.test(resUrl)) {
+          return {
+            error: `Resource URL for "${resTitle}" in Lesson #${i + 1} must start with http:// or https://`,
+          };
+        }
+
+        const resType = VALID_RESOURCE_TYPES.includes(resItem.type)
+          ? resItem.type
+          : "link";
+
+        const resObj = {
+          title: resTitle,
+          url: resUrl,
+          type: resType,
+        };
+
+        if (resItem._id && mongoose.Types.ObjectId.isValid(resItem._id)) {
+          resObj._id = resItem._id;
+        }
+
+        parsedResources.push(resObj);
+      }
+    }
+
+    const lessonObj = {
+      title: les.title.trim(),
+      duration: (les.duration || "15 mins").trim(),
+      content: les.content.trim(),
+      keyTakeaway: (les.keyTakeaway || "").trim(),
+      resources: parsedResources,
+    };
+
+    if (les._id && mongoose.Types.ObjectId.isValid(les._id)) {
+      lessonObj._id = les._id;
+    }
+
+    parsed.push(lessonObj);
+  }
+
+  return { parsed };
+};
+
 /**
  * GET /api/admin/modules
  * Fetch all modules with career/phase populated, optional filtering, and relationship metrics
@@ -255,28 +337,14 @@ const createAdminModule = async (req, res) => {
     // Lessons validation & processing
     let parsedLessons = [];
     if (Array.isArray(lessons)) {
-      for (let i = 0; i < lessons.length; i++) {
-        const les = lessons[i];
-        if (!les.title || !les.title.trim()) {
-          return res.status(400).json({
-            success: false,
-            message: `Lesson #${i + 1} is missing a title`,
-          });
-        }
-        if (!les.content || !les.content.trim()) {
-          return res.status(400).json({
-            success: false,
-            message: `Lesson #${i + 1} ("${les.title.trim()}") is missing content`,
-          });
-        }
-
-        parsedLessons.push({
-          title: les.title.trim(),
-          duration: (les.duration || "15 mins").trim(),
-          content: les.content.trim(),
-          keyTakeaway: (les.keyTakeaway || "").trim(),
+      const lessonResult = parseAndValidateLessons(lessons);
+      if (lessonResult.error) {
+        return res.status(400).json({
+          success: false,
+          message: lessonResult.error,
         });
       }
+      parsedLessons = lessonResult.parsed;
     }
 
     // Prerequisites processing
@@ -485,30 +553,14 @@ const updateAdminModule = async (req, res) => {
     // Lessons processing
     if (lessons !== undefined) {
       if (Array.isArray(lessons)) {
-        const parsedLessons = [];
-        for (let i = 0; i < lessons.length; i++) {
-          const les = lessons[i];
-          if (!les.title || !les.title.trim()) {
-            return res.status(400).json({
-              success: false,
-              message: `Lesson #${i + 1} is missing a title`,
-            });
-          }
-          if (!les.content || !les.content.trim()) {
-            return res.status(400).json({
-              success: false,
-              message: `Lesson #${i + 1} ("${les.title.trim()}") is missing content`,
-            });
-          }
-
-          parsedLessons.push({
-            title: les.title.trim(),
-            duration: (les.duration || "15 mins").trim(),
-            content: les.content.trim(),
-            keyTakeaway: (les.keyTakeaway || "").trim(),
+        const lessonResult = parseAndValidateLessons(lessons);
+        if (lessonResult.error) {
+          return res.status(400).json({
+            success: false,
+            message: lessonResult.error,
           });
         }
-        module.lessons = parsedLessons;
+        module.lessons = lessonResult.parsed;
       }
     }
 

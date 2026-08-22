@@ -45,6 +45,17 @@ const moduleSchema = new mongoose.Schema(
         duration: { type: String, default: "15 mins" },
         content: { type: String, required: true },
         keyTakeaway: { type: String, default: "" },
+        resources: [
+          {
+            title: { type: String, required: true, trim: true },
+            url: { type: String, required: true, trim: true },
+            type: {
+              type: String,
+              enum: ["pdf", "document", "link", "code", "video", "other"],
+              default: "link",
+            },
+          },
+        ],
       },
     ],
 

@@ -46,6 +46,7 @@ function AdminModules() {
         duration: "15 mins",
         content: "",
         keyTakeaway: "",
+        resources: [],
       },
     ],
     prerequisites: [],
@@ -220,10 +221,19 @@ function AdminModules() {
       lessons:
         Array.isArray(mod.lessons) && mod.lessons.length > 0
           ? mod.lessons.map((l) => ({
+              _id: l._id || undefined,
               title: l.title || "",
               duration: l.duration || "15 mins",
               content: l.content || "",
               keyTakeaway: l.keyTakeaway || "",
+              resources: Array.isArray(l.resources)
+                ? l.resources.map((r) => ({
+                    _id: r._id || undefined,
+                    title: r.title || "",
+                    url: r.url || "",
+                    type: r.type || "link",
+                  }))
+                : [],
             }))
           : [
               {
@@ -231,6 +241,7 @@ function AdminModules() {
                 duration: "15 mins",
                 content: "",
                 keyTakeaway: "",
+                resources: [],
               },
             ],
       prerequisites: Array.isArray(mod.prerequisites)
@@ -306,6 +317,7 @@ function AdminModules() {
           duration: "15 mins",
           content: "",
           keyTakeaway: "",
+          resources: [],
         },
       ],
     }));
@@ -326,6 +338,48 @@ function AdminModules() {
       const temp = newLessons[index];
       newLessons[index] = newLessons[targetIndex];
       newLessons[targetIndex] = temp;
+      return { ...prev, lessons: newLessons };
+    });
+  };
+
+  // Resource Handlers for Lessons
+  const handleAddResource = (lessonIndex) => {
+    setFormData((prev) => {
+      const newLessons = [...prev.lessons];
+      const targetLesson = { ...newLessons[lessonIndex] };
+      const currentResources = targetLesson.resources || [];
+      targetLesson.resources = [
+        ...currentResources,
+        { title: "", url: "", type: "link" },
+      ];
+      newLessons[lessonIndex] = targetLesson;
+      return { ...prev, lessons: newLessons };
+    });
+  };
+
+  const handleResourceChange = (lessonIndex, resourceIndex, field, value) => {
+    setFormData((prev) => {
+      const newLessons = [...prev.lessons];
+      const targetLesson = { ...newLessons[lessonIndex] };
+      const newResources = [...(targetLesson.resources || [])];
+      newResources[resourceIndex] = {
+        ...newResources[resourceIndex],
+        [field]: value,
+      };
+      targetLesson.resources = newResources;
+      newLessons[lessonIndex] = targetLesson;
+      return { ...prev, lessons: newLessons };
+    });
+  };
+
+  const handleRemoveResource = (lessonIndex, resourceIndex) => {
+    setFormData((prev) => {
+      const newLessons = [...prev.lessons];
+      const targetLesson = { ...newLessons[lessonIndex] };
+      targetLesson.resources = (targetLesson.resources || []).filter(
+        (_, rIdx) => rIdx !== resourceIndex
+      );
+      newLessons[lessonIndex] = targetLesson;
       return { ...prev, lessons: newLessons };
     });
   };
@@ -363,14 +417,36 @@ function AdminModules() {
       return;
     }
 
-    // Validate lessons
-    const validLessons = formData.lessons.filter(
-      (l) => l.title.trim() && l.content.trim()
-    );
+    // Validate lessons and resources
+    for (let i = 0; i < formData.lessons.length; i++) {
+      const les = formData.lessons[i];
+      if (!les.title.trim() || !les.content.trim()) {
+        setFormError(`Lesson #${i + 1} must have at least a Title and Content.`);
+        return;
+      }
 
-    if (formData.lessons.length > 0 && validLessons.length < formData.lessons.length) {
-      setFormError("Each lesson must have at least a Title and Content.");
-      return;
+      if (Array.isArray(les.resources)) {
+        for (let j = 0; j < les.resources.length; j++) {
+          const resItem = les.resources[j];
+          const resTitle = (resItem.title || "").trim();
+          const resUrl = (resItem.url || "").trim();
+
+          if (!resTitle) {
+            setFormError(`Resource #${j + 1} in Lesson #${i + 1} ("${les.title.trim()}") is missing a title.`);
+            return;
+          }
+          if (!resUrl) {
+            setFormError(`Resource "${resTitle}" in Lesson #${i + 1} ("${les.title.trim()}") is missing a URL.`);
+            return;
+          }
+          if (!/^https?:\/\//i.test(resUrl)) {
+            setFormError(
+              `Resource URL for "${resTitle}" in Lesson #${i + 1} must start with http:// or https://`
+            );
+            return;
+          }
+        }
+      }
     }
 
     setFormError("");
@@ -385,11 +461,20 @@ function AdminModules() {
         order: Number(formData.order),
         estimatedHours: Number(formData.estimatedHours || 0),
         objectives: formData.objectives.map((o) => o.trim()).filter(Boolean),
-        lessons: validLessons.map((l) => ({
+        lessons: formData.lessons.map((l) => ({
+          _id: l._id || undefined,
           title: l.title.trim(),
           duration: (l.duration || "15 mins").trim(),
           content: l.content.trim(),
           keyTakeaway: (l.keyTakeaway || "").trim(),
+          resources: Array.isArray(l.resources)
+            ? l.resources.map((r) => ({
+                _id: r._id || undefined,
+                title: r.title.trim(),
+                url: r.url.trim(),
+                type: r.type || "link",
+              }))
+            : [],
         })),
         prerequisites: formData.prerequisites,
         isActive: formData.isActive,
@@ -1201,6 +1286,98 @@ function AdminModules() {
                         placeholder="Summary takeaway for students..."
                         className="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-blue-500 font-medium"
                       />
+                    </div>
+
+                    {/* Lesson Resources Section */}
+                    <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-[10px] font-extrabold text-slate-700 uppercase tracking-wider">
+                          Lesson Resources ({(les.resources || []).length})
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => handleAddResource(idx)}
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-800 transition"
+                        >
+                          + Add Resource
+                        </button>
+                      </div>
+
+                      {(les.resources || []).length === 0 ? (
+                        <p className="text-[10px] text-slate-400 italic">
+                          No resources added to this lesson yet.
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {(les.resources || []).map((res, rIdx) => (
+                            <div
+                              key={rIdx}
+                              className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200"
+                            >
+                              <div className="w-full sm:w-1/3">
+                                <label className="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">
+                                  Title <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={res.title}
+                                  onChange={(e) =>
+                                    handleResourceChange(idx, rIdx, "title", e.target.value)
+                                  }
+                                  placeholder="e.g. PDF Notes / Cheat Sheet"
+                                  className="w-full rounded-lg border border-slate-300 px-2.5 py-1 text-[11px] outline-none focus:border-blue-500 font-medium"
+                                />
+                              </div>
+
+                              <div className="w-full sm:flex-1">
+                                <label className="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">
+                                  URL (http:// or https://) <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="url"
+                                  required
+                                  value={res.url}
+                                  onChange={(e) =>
+                                    handleResourceChange(idx, rIdx, "url", e.target.value)
+                                  }
+                                  placeholder="https://example.com/material.pdf"
+                                  className="w-full rounded-lg border border-slate-300 px-2.5 py-1 text-[11px] outline-none focus:border-blue-500 font-medium"
+                                />
+                              </div>
+
+                              <div className="w-full sm:w-auto">
+                                <label className="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">
+                                  Type
+                                </label>
+                                <select
+                                  value={res.type || "link"}
+                                  onChange={(e) =>
+                                    handleResourceChange(idx, rIdx, "type", e.target.value)
+                                  }
+                                  className="w-full rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-bold text-slate-700 outline-none focus:border-blue-500 bg-white"
+                                >
+                                  <option value="pdf">PDF</option>
+                                  <option value="document">Document</option>
+                                  <option value="link">Web Reference</option>
+                                  <option value="code">Starter Code</option>
+                                  <option value="video">Video</option>
+                                  <option value="other">Other</option>
+                                </select>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveResource(idx, rIdx)}
+                                className="p-1 text-slate-400 hover:text-red-500 transition shrink-0 sm:mt-4"
+                                title="Remove Resource"
+                              >
+                                🗑
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
