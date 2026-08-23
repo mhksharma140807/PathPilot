@@ -2,6 +2,9 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import LandingPage from "../pages/LandingPage";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
+import CertificateView from "../pages/CertificateView";
 import StudentDashboard from "../pages/StudentDashboard";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicOnlyRoute from "./PublicOnlyRoute";
@@ -26,6 +29,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/verify-certificate/:certificateId" element={<CertificateView />} />
 
       {/* Auth Entry Routes - Redirect logged-in users to Dashboard */}
       <Route element={<PublicOnlyRoute />}>

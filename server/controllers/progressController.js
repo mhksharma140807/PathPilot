@@ -245,6 +245,56 @@ const markLessonComplete = async (req, res) => {
 
     await progress.save();
 
+    // Safe post-completion certificate auto-issuance check
+    try {
+      const Certificate = require("../models/Certificate");
+      const allModules = await Module.find({ career: enrollment.career, isActive: true });
+      if (allModules.length > 0) {
+        const allProgressRecords = await ModuleProgress.find({
+          student: studentId,
+          career: enrollment.career,
+        });
+        const progressMap = new Map(
+          allProgressRecords.map((p) => [p.module.toString(), p.progressPercentage || 0])
+        );
+        const overallPct = Math.round(
+          allModules.reduce(
+            (sum, mod) => sum + (progressMap.get(mod._id.toString()) || 0),
+            0
+          ) / allModules.length
+        );
+
+        if (overallPct >= 100) {
+          const existingCert = await Certificate.findOne({
+            student: studentId,
+            career: enrollment.career,
+          });
+
+          if (!existingCert) {
+            const fullCareer = await CareerEnrollment.findOne({
+              student: studentId,
+              status: "active",
+            }).populate("career");
+
+            const skillsMastered = fullCareer?.career?.skills || [];
+            const completionTimeHours = allModules.reduce(
+              (acc, m) => acc + (m.estimatedHours || 0),
+              0
+            );
+
+            await Certificate.create({
+              student: studentId,
+              career: enrollment.career,
+              skillsMastered,
+              completionTimeHours,
+            });
+          }
+        }
+      }
+    } catch (certError) {
+      console.warn("Post-completion certificate auto-check warning:", certError.message);
+    }
+
     res.status(200).json({
       message: "Lesson marked complete",
       progress: {
