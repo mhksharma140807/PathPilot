@@ -252,9 +252,14 @@ The backend exposes a RESTful API structured around the following resource route
 
 ---
 
-## Author
+## Authors & Contributors
 
 **Mahak Sharma**
 - **Role**: Full Stack Developer & Architect
 - **Repository**: [PathPilot GitHub](https://github.com/mhksharma140807/PathPilot)
-- **Contributors**: Team PathPilot
+
+**Bhumi**
+- **Role**: Frontend Developer
+
+---
+- **Team**: PathPilot
