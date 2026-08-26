@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getCareers, getMyCareer, selectCareer } from "../services/careerService";
+import { getMyCertificates } from "../services/certificateService";
 import CareerRoadmap from "../components/CareerRoadmap";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -17,6 +18,7 @@ function MyCareer() {
   const [loading, setLoading] = useState(true);
   const [selectingId, setSelectingId] = useState(null);
   const [error, setError] = useState("");
+  const [userCert, setUserCert] = useState(null);
 
   const loadCareerData = async () => {
     try {
@@ -44,6 +46,23 @@ function MyCareer() {
   useEffect(() => {
     loadCareerData();
   }, []);
+
+  useEffect(() => {
+    if (currentCareer && overallProgress >= 100) {
+      getMyCertificates()
+        .then((res) => {
+          if (res?.success && res?.certificates?.length > 0) {
+            const currentId = currentCareer._id || currentCareer.id;
+            const match =
+              res.certificates.find(
+                (c) => (c.career?._id || c.career?.id || c.career) === currentId
+              ) || res.certificates[0];
+            setUserCert(match);
+          }
+        })
+        .catch((err) => console.warn("Failed to fetch certificate in MyCareer:", err));
+    }
+  }, [currentCareer, overallProgress]);
 
   const handleSelectCareer = async (careerId) => {
     try {
@@ -182,15 +201,31 @@ function MyCareer() {
                   <div className="w-full md:w-64 rounded-2xl bg-slate-800/90 p-5 border border-slate-700/80 shrink-0 text-center space-y-3">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Overall Progress</p>
                     <p className="text-4xl font-extrabold text-white">{overallProgress}%</p>
-                    <div className="pt-1">
+                    <div className="pt-1 space-y-2">
                       <button
                         type="button"
                         onClick={() => navigate("/learning-modules")}
-                        className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-4 text-xs font-extrabold text-white transition hover:bg-blue-700 shadow-md shadow-blue-600/20 active:scale-95"
+                        className="w-full h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-4 text-xs font-extrabold text-white transition hover:bg-blue-700 shadow-md shadow-blue-600/20 active:scale-95"
                       >
-                        <span>Continue Learning</span>
+                        <span>{overallProgress >= 100 ? "Review Modules" : "Continue Learning"}</span>
                         <span>→</span>
                       </button>
+
+                      {overallProgress >= 100 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (userCert?.certificateId) {
+                              navigate(`/verify-certificate/${userCert.certificateId}`);
+                            } else {
+                              navigate("/progress");
+                            }
+                          }}
+                          className="w-full h-10 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-extrabold text-white transition hover:bg-emerald-500 shadow-md shadow-emerald-600/20 active:scale-95 cursor-pointer"
+                        >
+                          <span>🎓 {userCert ? "View Certificate" : "Claim Certificate"}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

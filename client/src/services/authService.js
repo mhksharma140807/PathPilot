@@ -35,3 +35,31 @@ export const getCurrentUser = async () => {
     );
   }
 };
+
+export const requestPasswordReset = async (email) => {
+  try {
+    const response = await api.post("/auth/forgot-password", { email });
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to send reset code",
+      { cause: error }
+    );
+  }
+};
+
+export const resetPasswordWithOtp = async (email, otp, newPassword) => {
+  try {
+    const response = await api.post("/auth/reset-password", {
+      email,
+      otp,
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to reset password",
+      { cause: error }
+    );
+  }
+};

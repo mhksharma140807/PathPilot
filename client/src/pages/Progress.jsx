@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getStudentDashboard } from "../services/dashboardService";
+import { getMyCertificates, claimCertificate } from "../services/certificateService";
+import CertificateCard from "../components/CertificateCard";
 import ProgressBar from "../components/ProgressBar";
 import StatusBadge from "../components/StatusBadge";
 import LoadingState from "../components/LoadingState";
@@ -12,6 +14,9 @@ function Progress() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [certificate, setCertificate] = useState(null);
+  const [claiming, setClaiming] = useState(false);
+  const [certError, setCertError] = useState("");
 
   const loadProgressData = async () => {
     try {
@@ -49,6 +54,43 @@ function Progress() {
   );
   const notStartedModules = totalModules - completedModules - inProgressModules;
   const overallProgress = data?.summary?.overallProgress || 0;
+
+  useEffect(() => {
+    if (hasEnrollment && overallProgress >= 100) {
+      getMyCertificates()
+        .then((res) => {
+          if (res?.success && res?.certificates?.length > 0) {
+            const currentCareerId = data?.career?._id || data?.career?.id;
+            const match =
+              res.certificates.find(
+                (c) =>
+                  (c.career?._id || c.career?.id || c.career) === currentCareerId
+              ) || res.certificates[0];
+            setCertificate(match);
+          }
+        })
+        .catch((err) => console.warn("Failed to fetch user certificate:", err));
+    }
+  }, [hasEnrollment, overallProgress, data?.career]);
+
+  const handleClaim = async () => {
+    try {
+      setClaiming(true);
+      setCertError("");
+      const res = await claimCertificate();
+      if (res?.success && res?.certificate) {
+        setCertificate(res.certificate);
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to claim certificate.";
+      setCertError(msg);
+    } finally {
+      setClaiming(false);
+    }
+  };
 
   const currentModuleIndex = useMemo(
     () => modules.findIndex((m) => (m.progressPercentage || m.progress || 0) < 100),
@@ -164,6 +206,55 @@ function Progress() {
               </div>
             </div>
           </section>
+
+          {/* GRADUATION / CERTIFICATE SECTION (When overallProgress >= 100) */}
+          {overallProgress >= 100 && (
+            <section className="space-y-4">
+              {certificate ? (
+                <CertificateCard certificate={certificate} />
+              ) : (
+                <div className="rounded-3xl border border-emerald-300 bg-gradient-to-r from-emerald-950 via-[#0F172A] to-blue-950 p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+                  <div className="space-y-2 max-w-2xl">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3.5 py-1 text-xs font-bold text-emerald-300 border border-emerald-500/30">
+                      <span>🎉</span>
+                      <span>100% Curriculum Completed</span>
+                    </span>
+                    <h3 className="text-2xl font-extrabold text-white tracking-tight sm:text-3xl">
+                      Claim Your Official PathPilot Certificate
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      Congratulations! You have mastered all curriculum requirements for{" "}
+                      <strong className="text-emerald-300">
+                        {data?.career?.title || "your active career"}
+                      </strong>
+                      . Your verified credential is ready to be claimed.
+                    </p>
+                    {certError && (
+                      <p className="text-xs font-semibold text-red-300 bg-red-950/60 p-2 rounded-xl border border-red-800/60">
+                        {certError}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleClaim}
+                    disabled={claiming}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-6 py-3.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-lg hover:bg-emerald-400 transition active:scale-95 disabled:opacity-50 shrink-0 cursor-pointer"
+                  >
+                    {claiming ? (
+                      <span>Issuing Certificate...</span>
+                    ) : (
+                      <>
+                        <span>🎓 Claim Official Certificate</span>
+                        <span>→</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </section>
+          )}
 
           {/* 2. KPI CARDS (4 cards) */}
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

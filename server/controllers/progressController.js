@@ -106,7 +106,219 @@ const updateModuleProgress = async (req, res) => {
   }
 };
 
+const markLessonComplete = async (req, res) => {
+  try {
+    const studentId = req.user._id || req.user.id;
+    const { moduleId, lessonId } = req.body;
+
+    if (!moduleId || !lessonId) {
+      return res.status(400).json({
+        message: "moduleId and lessonId are required",
+      });
+    }
+
+    const enrollment = await CareerEnrollment.findOne({
+      student: studentId,
+      status: "active",
+    });
+
+    if (!enrollment) {
+      return res.status(404).json({
+        message: "No active career selected",
+      });
+    }
+
+    const targetModule = await Module.findOne({
+      _id: moduleId,
+      career: enrollment.career,
+      isActive: true,
+    });
+
+    if (!targetModule) {
+      return res.status(404).json({
+        message: "Module not found in your selected career",
+      });
+    }
+
+    const targetLesson = targetModule.lessons && targetModule.lessons.id
+      ? targetModule.lessons.id(lessonId)
+      : targetModule.lessons.find((l) => l._id && l._id.toString() === lessonId.toString());
+
+    if (!targetLesson) {
+      return res.status(404).json({
+        message: "Lesson not found in this module",
+      });
+    }
+
+    // Evaluate module prerequisites
+    if (targetModule.prerequisites && targetModule.prerequisites.length > 0) {
+      const prereqProgress = await ModuleProgress.find({
+        student: studentId,
+        career: enrollment.career,
+        module: { $in: targetModule.prerequisites },
+      });
+
+      const completedPrereqSet = new Set(
+        prereqProgress
+          .filter(
+            (p) =>
+              p.status === "completed" ||
+              (typeof p.progressPercentage === "number" &&
+                p.progressPercentage >= 100)
+          )
+          .map((p) => p.module.toString())
+      );
+
+      const allPrereqsMet = targetModule.prerequisites.every((prereqId) =>
+        completedPrereqSet.has(prereqId.toString())
+      );
+
+      if (!allPrereqsMet) {
+        return res.status(403).json({
+          message: "Module prerequisites are not completed",
+        });
+      }
+    }
+
+    let progress = await ModuleProgress.findOne({
+      student: studentId,
+      module: moduleId,
+    });
+
+    if (!progress) {
+      progress = new ModuleProgress({
+        student: studentId,
+        career: enrollment.career,
+        module: moduleId,
+        status: "not_started",
+        progressPercentage: 0,
+        completedAt: null,
+        completedLessons: [],
+      });
+    }
+
+    if (!Array.isArray(progress.completedLessons)) {
+      progress.completedLessons = [];
+    }
+
+    const alreadyCompleted = progress.completedLessons.some(
+      (cl) => cl.lessonId && cl.lessonId.toString() === lessonId.toString()
+    );
+
+    if (!alreadyCompleted) {
+      progress.completedLessons.push({
+        lessonId: targetLesson._id,
+        completedAt: new Date(),
+      });
+    }
+
+    // Recalculate progress based on unique completed lessons that still belong to module
+    const validLessonIdSet = new Set(
+      targetModule.lessons.map((l) => l._id.toString())
+    );
+
+    const validCompletedCount = progress.completedLessons.filter(
+      (cl) => cl.lessonId && validLessonIdSet.has(cl.lessonId.toString())
+    ).length;
+
+    const totalLessons = targetModule.lessons.length;
+    let computedPercentage = 0;
+
+    if (totalLessons > 0) {
+      computedPercentage = Math.round(
+        (validCompletedCount / totalLessons) * 100
+      );
+    }
+
+    computedPercentage = Math.min(Math.max(computedPercentage, 0), 100);
+
+    let computedStatus = "not_started";
+    if (computedPercentage >= 100) {
+      computedStatus = "completed";
+    } else if (computedPercentage > 0) {
+      computedStatus = "in_progress";
+    }
+
+    progress.status = computedStatus;
+    progress.progressPercentage = computedPercentage;
+    progress.completedAt = computedStatus === "completed" ? (progress.completedAt || new Date()) : null;
+
+    await progress.save();
+
+    // Safe post-completion certificate auto-issuance check
+    try {
+      const Certificate = require("../models/Certificate");
+      const allModules = await Module.find({ career: enrollment.career, isActive: true });
+      if (allModules.length > 0) {
+        const allProgressRecords = await ModuleProgress.find({
+          student: studentId,
+          career: enrollment.career,
+        });
+        const progressMap = new Map(
+          allProgressRecords.map((p) => [p.module.toString(), p.progressPercentage || 0])
+        );
+        const overallPct = Math.round(
+          allModules.reduce(
+            (sum, mod) => sum + (progressMap.get(mod._id.toString()) || 0),
+            0
+          ) / allModules.length
+        );
+
+        if (overallPct >= 100) {
+          const existingCert = await Certificate.findOne({
+            student: studentId,
+            career: enrollment.career,
+          });
+
+          if (!existingCert) {
+            const fullCareer = await CareerEnrollment.findOne({
+              student: studentId,
+              status: "active",
+            }).populate("career");
+
+            const skillsMastered = fullCareer?.career?.skills || [];
+            const completionTimeHours = allModules.reduce(
+              (acc, m) => acc + (m.estimatedHours || 0),
+              0
+            );
+
+            await Certificate.create({
+              student: studentId,
+              career: enrollment.career,
+              skillsMastered,
+              completionTimeHours,
+            });
+          }
+        }
+      }
+    } catch (certError) {
+      console.warn("Post-completion certificate auto-check warning:", certError.message);
+    }
+
+    res.status(200).json({
+      message: "Lesson marked complete",
+      progress: {
+        _id: progress._id,
+        student: progress.student,
+        career: progress.career,
+        module: progress.module,
+        moduleId: progress.module,
+        status: progress.status,
+        progressPercentage: progress.progressPercentage,
+        completedAt: progress.completedAt,
+        completedLessons: progress.completedLessons,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to mark lesson complete",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getMyProgress,
   updateModuleProgress,
+  markLessonComplete,
 };

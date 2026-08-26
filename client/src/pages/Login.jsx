@@ -43,11 +43,16 @@ function Login() {
       setStoredToken(response.token);
       setStoredUser(response.user);
 
-      if (response.user.role === "student") {
+      if (response.user.role === "admin") {
+        toast.success("Welcome back, Administrator!");
+        const fromPath = typeof from === "string" ? from : from?.pathname || "";
+        const target = fromPath.startsWith("/admin") ? from : "/admin/dashboard";
+        navigate(target, { replace: true });
+      } else if (response.user.role === "student") {
         toast.success(`Welcome back, ${response.user.name || "Student"}!`);
         navigate(from, { replace: true });
       } else {
-        const msg = "This dashboard is currently available for students.";
+        const msg = "Unauthorized user role.";
         setError(msg);
         toast.error(msg);
       }
@@ -172,9 +177,17 @@ function Login() {
               </div>
 
               <div>
-                <label htmlFor="login-password" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
-                  Password
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="login-password" className="block text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+                    Password
+                  </label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs font-semibold text-[#2563EB] hover:underline focus:outline-none"
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
                 <div className="relative">
                   <input
                     id="login-password"

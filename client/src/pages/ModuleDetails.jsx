@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getModuleById } from "../services/moduleService";
-import { getMyProgress, updateModuleProgress } from "../services/progressService";
+import { getMyProgress, markLessonComplete } from "../services/progressService";
 import ProgressBar from "../components/ProgressBar";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -9,6 +9,24 @@ import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
 
 import { useToast } from "../context/ToastContext";
+
+const getResourceTypeBadge = (type) => {
+  switch (type) {
+    case "pdf":
+      return { label: "PDF Document", icon: "📄", bg: "bg-red-50 text-red-700 border-red-200" };
+    case "document":
+      return { label: "Doc / Notes", icon: "📝", bg: "bg-amber-50 text-amber-700 border-amber-200" };
+    case "code":
+      return { label: "Starter Code", icon: "💻", bg: "bg-purple-50 text-purple-700 border-purple-200" };
+    case "video":
+      return { label: "Video Tutorial", icon: "🎥", bg: "bg-blue-50 text-blue-700 border-blue-200" };
+    case "other":
+      return { label: "Attachment", icon: "📦", bg: "bg-slate-100 text-slate-700 border-slate-200" };
+    case "link":
+    default:
+      return { label: "Web Reference", icon: "🔗", bg: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+  }
+};
 
 function ModuleDetails() {
   const { moduleId } = useParams();
@@ -18,7 +36,7 @@ function ModuleDetails() {
   const [module, setModule] = useState(null);
   const [progress, setProgress] = useState(0);
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
-  const [completedLessonIndices, setCompletedLessonIndices] = useState([]);
+  const [completedLessonIds, setCompletedLessonIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
@@ -65,28 +83,35 @@ function ModuleDetails() {
 
       const progList = progressData?.progress || [];
       let currentProg = 0;
+      let fetchedCompletedLessons = [];
+
       if (Array.isArray(progList)) {
         const found = progList.find(
           (item) => item.module?._id === moduleId || item.module === moduleId
         );
         currentProg = found?.progressPercentage ?? found?.progress ?? 0;
+        fetchedCompletedLessons = found?.completedLessons || [];
         setProgress(currentProg);
       }
+
+      const doneIds = fetchedCompletedLessons
+        .map((cl) => (typeof cl === "object" ? cl?.lessonId : cl))
+        .filter(Boolean)
+        .map((id) => id.toString());
+
+      setCompletedLessonIds(doneIds);
 
       const lessonsList = fetchedMod?.lessons?.length > 0
         ? fetchedMod.lessons
         : getDefaultLessons(fetchedMod?.title);
 
-      const totalL = lessonsList.length;
-      const numCompleted = Math.round((currentProg / 100) * totalL);
-      const completedIndices = [];
-      for (let i = 0; i < numCompleted; i++) {
-        completedIndices.push(i);
-      }
-      setCompletedLessonIndices(completedIndices);
+      const doneSet = new Set(doneIds);
+      const firstIncompleteIdx = lessonsList.findIndex(
+        (les) => les._id && !doneSet.has(les._id.toString())
+      );
 
-      if (numCompleted < totalL) {
-        setActiveLessonIndex(numCompleted);
+      if (firstIncompleteIdx !== -1) {
+        setActiveLessonIndex(firstIncompleteIdx);
       } else {
         setActiveLessonIndex(0);
       }
@@ -116,35 +141,51 @@ function ModuleDetails() {
     : defaultObjectives;
 
   const currentLesson = lessons[activeLessonIndex] || lessons[0];
+  const currentLessonIdStr = currentLesson?._id ? currentLesson._id.toString() : null;
+  const isCurrentLessonDone = currentLessonIdStr ? completedLessonIds.includes(currentLessonIdStr) : false;
 
-  const handleMarkLessonComplete = async (indexToComplete) => {
+  const handleMarkLessonComplete = async (lessonToComplete) => {
+    const targetLessonId = lessonToComplete?._id;
+
+    if (!targetLessonId) {
+      toast.error("Lesson identifier not found.");
+      return;
+    }
+
     try {
       setUpdating(true);
       setError("");
 
-      let updatedIndices = [...completedLessonIndices];
-      if (!updatedIndices.includes(indexToComplete)) {
-        updatedIndices.push(indexToComplete);
+      const res = await markLessonComplete(moduleId, targetLessonId);
+      const updatedProgress = res?.progress;
+
+      if (updatedProgress) {
+        const newPercentage = updatedProgress.progressPercentage ?? 0;
+        setProgress(newPercentage);
+
+        const rawCompletedLessons = updatedProgress.completedLessons || [];
+        const updatedIds = rawCompletedLessons
+          .map((cl) => (typeof cl === "object" ? cl?.lessonId : cl))
+          .filter(Boolean)
+          .map((id) => id.toString());
+
+        setCompletedLessonIds(updatedIds);
+
+        if (newPercentage >= 100) {
+          toast.success("Module completed! Outstanding work.");
+        } else {
+          toast.success(res.message || `Lesson marked complete (${newPercentage}%)`);
+        }
       }
 
-      setCompletedLessonIndices(updatedIndices);
-
-      const totalL = lessons.length;
-      const newProgress = Math.min(Math.round((updatedIndices.length / totalL) * 100), 100);
-
-      await updateModuleProgress(moduleId, newProgress);
-      setProgress(newProgress);
-      if (newProgress >= 100) {
-        toast.success("Module completed! Outstanding work.");
-      } else {
-        toast.success(`Lesson marked complete (${newProgress}%)`);
-      }
-
-      if (indexToComplete + 1 < totalL) {
-        setActiveLessonIndex(indexToComplete + 1);
+      if (activeLessonIndex + 1 < lessons.length) {
+        setActiveLessonIndex(activeLessonIndex + 1);
       }
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || "Unable to update lesson progress.";
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to update lesson progress.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -223,7 +264,7 @@ function ModuleDetails() {
                 <p className="mt-1 text-xs text-slate-600">
                   {progress >= 100
                     ? "Congratulations! You have completed all lessons in this learning module."
-                    : `Completed ${completedLessonIndices.length} of ${lessons.length} lessons.`}
+                    : `Completed ${completedLessonIds.length} of ${lessons.length} lessons.`}
                 </p>
               </div>
 
@@ -261,11 +302,12 @@ function ModuleDetails() {
                 <div className="space-y-2">
                   {lessons.map((les, idx) => {
                     const isActive = idx === activeLessonIndex;
-                    const isDone = completedLessonIndices.includes(idx);
+                    const lesIdStr = les._id ? les._id.toString() : null;
+                    const isDone = lesIdStr ? completedLessonIds.includes(lesIdStr) : false;
 
                     return (
                       <button
-                        key={idx}
+                        key={les._id || idx}
                         type="button"
                         onClick={() => setActiveLessonIndex(idx)}
                         className={`w-full flex items-center justify-between rounded-xl px-4 py-3 text-left text-xs font-semibold transition ${
@@ -332,6 +374,57 @@ function ModuleDetails() {
                       {currentLesson.keyTakeaway}
                     </div>
                   )}
+
+                  {/* Study Materials & Resources Section */}
+                  {currentLesson?.resources && currentLesson.resources.length > 0 && (
+                    <div className="mt-8 rounded-2xl border border-slate-200 bg-[#F8FAFC] p-5 space-y-3">
+                      <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
+                        <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#0F172A] flex items-center gap-2">
+                          <span>📚</span>
+                          <span>Study Materials & Resources ({currentLesson.resources.length})</span>
+                        </h3>
+                        <span className="text-[10px] text-slate-500 font-medium hidden sm:inline">
+                          Opens safely in a new tab
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        {currentLesson.resources.map((res, rIdx) => {
+                          const badge = getResourceTypeBadge(res.type);
+                          return (
+                            <div
+                              key={res._id || rIdx}
+                              className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs hover:shadow-xs transition"
+                            >
+                              <div className="min-w-0 flex-1 space-y-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${badge.bg}`}>
+                                    <span>{badge.icon}</span>
+                                    <span>{badge.label}</span>
+                                  </span>
+                                </div>
+                                <p className="text-xs font-bold text-[#0F172A] truncate">
+                                  {res.title}
+                                </p>
+                              </div>
+
+                              <a
+                                href={res.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 shrink-0 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-bold text-[#2563EB] hover:bg-blue-100 hover:text-blue-800 transition"
+                              >
+                                <span>Open Resource</span>
+                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </a>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Lesson Controls */}
@@ -348,11 +441,11 @@ function ModuleDetails() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      disabled={updating || completedLessonIndices.includes(activeLessonIndex)}
-                      onClick={() => handleMarkLessonComplete(activeLessonIndex)}
+                      disabled={updating || isCurrentLessonDone || !currentLesson?._id}
+                      onClick={() => handleMarkLessonComplete(currentLesson)}
                       className="rounded-xl bg-[#2563EB] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-blue-700 shadow-xs disabled:opacity-60"
                     >
-                      {completedLessonIndices.includes(activeLessonIndex)
+                      {isCurrentLessonDone
                         ? "✓ Lesson Completed"
                         : updating
                         ? "Saving..."

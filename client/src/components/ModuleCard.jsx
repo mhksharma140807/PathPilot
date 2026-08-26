@@ -1,13 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import ProgressBar from "./ProgressBar";
 
-function ModuleCard({ module, index, isCurrent }) {
+function ModuleCard({ module, index, isCurrent, isUnlocked }) {
   const navigate = useNavigate();
 
   const progress = Number(module.progress || module.progressPercentage) || 0;
   const moduleId = module._id || module.id || module.moduleId;
   const isCompleted = progress >= 100 || module.status === "completed";
   const isInProgress = (progress > 0 && progress < 100) || module.status === "in_progress";
+  const isLocked = isUnlocked === false;
 
   // Difficulty badge logic (fallback to Intermediate if unspecified)
   const difficulty = module.difficulty || (index % 3 === 0 ? "Beginner" : index % 3 === 1 ? "Intermediate" : "Advanced");
@@ -19,12 +20,14 @@ function ModuleCard({ module, index, isCurrent }) {
 
   return (
     <article
-      className={`group flex flex-col justify-between rounded-3xl border p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
-        isCompleted
-          ? "border-emerald-200 bg-white"
+      className={`group flex flex-col justify-between rounded-3xl border p-6 shadow-xs transition-all duration-300 ${
+        isLocked
+          ? "border-slate-200 bg-slate-50/60 opacity-80"
+          : isCompleted
+          ? "border-emerald-200 bg-white hover:-translate-y-1 hover:shadow-lg"
           : isInProgress || isCurrent
-          ? "border-blue-300 bg-white ring-2 ring-blue-500/20"
-          : "border-slate-200/90 bg-white hover:border-slate-300"
+          ? "border-blue-300 bg-white ring-2 ring-blue-500/20 hover:-translate-y-1 hover:shadow-lg"
+          : "border-slate-200/90 bg-white hover:border-slate-300 hover:-translate-y-1 hover:shadow-lg"
       }`}
     >
       <div className="space-y-4">
@@ -32,15 +35,19 @@ function ModuleCard({ module, index, isCurrent }) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-extrabold text-white shadow-xs transition-transform duration-300 group-hover:scale-105 ${
-                isCompleted
-                  ? "bg-emerald-600"
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-extrabold shadow-xs transition-transform duration-300 ${
+                isLocked
+                  ? "bg-slate-200 text-slate-400"
+                  : isCompleted
+                  ? "bg-emerald-600 text-white group-hover:scale-105"
                   : isInProgress || isCurrent
-                  ? "bg-[#2563EB]"
-                  : "bg-slate-800"
+                  ? "bg-[#2563EB] text-white group-hover:scale-105"
+                  : "bg-slate-800 text-white group-hover:scale-105"
               }`}
             >
-              {isCompleted ? (
+              {isLocked ? (
+                <span>🔒</span>
+              ) : isCompleted ? (
                 <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
@@ -62,14 +69,16 @@ function ModuleCard({ module, index, isCurrent }) {
           {/* Status Badge */}
           <span
             className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-              isCompleted
+              isLocked
+                ? "bg-slate-100 text-slate-500 border border-slate-200"
+                : isCompleted
                 ? "bg-emerald-100 text-emerald-800"
                 : isInProgress || isCurrent
                 ? "bg-blue-100 text-[#2563EB]"
                 : "bg-slate-100 text-slate-600"
             }`}
           >
-            {isCompleted ? "Completed" : isInProgress || isCurrent ? "In Progress" : "Not Started"}
+            {isLocked ? "🔒 Locked" : isCompleted ? "Completed" : isInProgress || isCurrent ? "In Progress" : "Not Started"}
           </span>
         </div>
 
@@ -104,18 +113,21 @@ function ModuleCard({ module, index, isCurrent }) {
 
         <button
           type="button"
-          onClick={() => navigate(`/learning-modules/${moduleId}`)}
-          aria-label={`${isCompleted ? "Review" : isInProgress ? "Continue" : "Start"} module ${module.title || module.name}`}
-          className={`flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-xs font-extrabold transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-            isCompleted
-              ? "bg-slate-100 text-[#0F172A] hover:bg-slate-200 focus:ring-slate-400"
+          disabled={isLocked}
+          onClick={() => !isLocked && navigate(`/learning-modules/${moduleId}`)}
+          aria-label={`${isLocked ? "Locked" : isCompleted ? "Review" : isInProgress ? "Continue" : "Start"} module ${module.title || module.name}`}
+          className={`flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-xs font-extrabold transition-all duration-200 ${
+            isLocked
+              ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+              : isCompleted
+              ? "bg-slate-100 text-[#0F172A] hover:bg-slate-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400"
               : isInProgress || isCurrent
-              ? "bg-[#2563EB] text-white hover:bg-blue-700 shadow-md shadow-blue-600/20 focus:ring-[#2563EB]"
-              : "bg-slate-900 text-white hover:bg-slate-800 shadow-xs focus:ring-slate-900"
+              ? "bg-[#2563EB] text-white hover:bg-blue-700 shadow-md shadow-blue-600/20 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2563EB]"
+              : "bg-slate-900 text-white hover:bg-slate-800 shadow-xs active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900"
           }`}
         >
-          <span>{isCompleted ? "Review Module" : isInProgress ? "Continue Learning" : "Start Module"}</span>
-          <span>→</span>
+          <span>{isLocked ? "🔒 Locked" : isCompleted ? "Review Module" : isInProgress ? "Continue Learning" : "Start Module"}</span>
+          {!isLocked && <span>→</span>}
         </button>
       </div>
     </article>

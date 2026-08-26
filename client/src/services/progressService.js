@@ -16,3 +16,16 @@ export const updateModuleProgress = async (moduleId, progressPercentage, status)
   });
   return response.data;
 };
+
+export const markLessonComplete = async (moduleId, lessonId) => {
+  const response = await api.post("/progress/lesson", {
+    moduleId,
+    lessonId,
+  });
+  return response.data;
+};
+
+export const getCurriculumState = async () => {
+  const response = await api.get("/progress/curriculum");
+  return response.data;
+};

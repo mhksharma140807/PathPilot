@@ -9,3 +9,8 @@ export const getModuleById = async (moduleId) => {
   const response = await api.get(`/modules/${moduleId}`);
   return response.data;
 };
+
+export const getModulesByPhase = async (phaseId) => {
+  const response = await api.get(`/modules/phase/${phaseId}`);
+  return response.data;
+};
