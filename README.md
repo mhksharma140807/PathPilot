@@ -492,3 +492,4 @@ Detailed architectural and API documentation files are available under `docs/`:
 - **Role**: Frontend Developer
 
 ---
+- **Team**: PathPilot
