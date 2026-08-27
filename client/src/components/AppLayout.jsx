@@ -169,27 +169,6 @@ function AppLayout() {
               </div>
             </div>
 
-            {/* Middle: Disabled Search Bar Placeholder */}
-            <div 
-              title="Global search will be available in Version 2."
-              className="hidden lg:flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs text-slate-400 cursor-default select-none transition-colors hover:border-slate-300"
-            >
-              <svg className="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search modules, skills..."
-                disabled
-                tabIndex={-1}
-                className="bg-transparent outline-none cursor-default w-48 placeholder:text-slate-400 text-slate-500 font-medium"
-                aria-label="Search modules and skills (disabled)"
-              />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100 border border-amber-200/80 px-2 py-0.5 rounded-full shrink-0">
-                Coming Soon
-              </span>
-            </div>
-
             {/* Right: Welcome Text & User Profile Avatar Dropdown */}
             <div className="flex items-center gap-3 shrink-0 relative">
               <div className="hidden sm:block text-right">
