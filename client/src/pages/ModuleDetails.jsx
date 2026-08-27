@@ -49,18 +49,21 @@ function ModuleDetails() {
 
   const getDefaultLessons = (modTitle) => [
     {
+      _id: "default-lesson-1",
       title: `1. Core Overview of ${modTitle || 'Module'}`,
       duration: "15 mins",
       content: `Welcome to this module on ${modTitle || 'your track'}. In this lesson, we break down the primary principles, industry standards, and architectural blueprints required to excel in this topic. Review the core concepts thoroughly before moving into practical tasks.`,
       keyTakeaway: "Understanding fundamental principles ensures software reliability and scalability."
     },
     {
+      _id: "default-lesson-2",
       title: `2. Deep-Dive & Key Concepts`,
       duration: "25 mins",
       content: "Building on the foundation, this section explores advanced patterns, optimization routines, and practical workflows. Ensure you understand how data flows across components and how to diagnose common edge cases.",
       keyTakeaway: "Clean separation of concerns improves code readability and maintainability."
     },
     {
+      _id: "default-lesson-3",
       title: `3. Practical Activity & Assessment`,
       duration: "20 mins",
       content: "Put your knowledge to test! Create a practical prototype demonstrating the skills covered in the previous lessons. Verify error handling, edge cases, and user interface responsiveness.",
@@ -107,7 +110,7 @@ function ModuleDetails() {
 
       const doneSet = new Set(doneIds);
       const firstIncompleteIdx = lessonsList.findIndex(
-        (les) => les._id && !doneSet.has(les._id.toString())
+        (les) => (les._id || les.id) && !doneSet.has((les._id || les.id).toString())
       );
 
       if (firstIncompleteIdx !== -1) {
@@ -141,11 +144,15 @@ function ModuleDetails() {
     : defaultObjectives;
 
   const currentLesson = lessons[activeLessonIndex] || lessons[0];
-  const currentLessonIdStr = currentLesson?._id ? currentLesson._id.toString() : null;
+  const currentLessonIdStr = currentLesson?._id
+    ? currentLesson._id.toString()
+    : currentLesson?.id
+    ? currentLesson.id.toString()
+    : null;
   const isCurrentLessonDone = currentLessonIdStr ? completedLessonIds.includes(currentLessonIdStr) : false;
 
   const handleMarkLessonComplete = async (lessonToComplete) => {
-    const targetLessonId = lessonToComplete?._id;
+    const targetLessonId = lessonToComplete?._id || lessonToComplete?.id;
 
     if (!targetLessonId) {
       toast.error("Lesson identifier not found.");
@@ -302,12 +309,16 @@ function ModuleDetails() {
                 <div className="space-y-2">
                   {lessons.map((les, idx) => {
                     const isActive = idx === activeLessonIndex;
-                    const lesIdStr = les._id ? les._id.toString() : null;
+                    const lesIdStr = les._id
+                      ? les._id.toString()
+                      : les.id
+                      ? les.id.toString()
+                      : null;
                     const isDone = lesIdStr ? completedLessonIds.includes(lesIdStr) : false;
 
                     return (
                       <button
-                        key={les._id || idx}
+                        key={les._id || les.id || idx}
                         type="button"
                         onClick={() => setActiveLessonIndex(idx)}
                         className={`w-full flex items-center justify-between rounded-xl px-4 py-3 text-left text-xs font-semibold transition ${
@@ -441,7 +452,7 @@ function ModuleDetails() {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      disabled={updating || isCurrentLessonDone || !currentLesson?._id}
+                      disabled={updating || isCurrentLessonDone || !currentLessonIdStr}
                       onClick={() => handleMarkLessonComplete(currentLesson)}
                       className="rounded-xl bg-[#2563EB] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-blue-700 shadow-xs disabled:opacity-60"
                     >

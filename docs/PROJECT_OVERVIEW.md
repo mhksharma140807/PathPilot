@@ -1,172 +1,53 @@
-# PathPilot: Detailed Project Overview
+# PathPilot V2 Project Overview
 
-> **Career Learning & Skill Development Ecosystem**
+## 1. Problem Statement & Executive Summary
 
----
+In today's technology ecosystem, self-taught developers and early-career candidates face **choice paralysis** caused by unstructured tutorials, fragmented learning materials, and lack of clear prerequisite sequencing. Candidates frequently complete isolated coding exercises without understanding how topic areas connect into a production-grade career pathway.
 
-## 1. Problem Statement
-
-In today's digital economy, self-directed learners and students face significant hurdles when navigating career transitions and skill development:
-
-- **Information Overload & Fragmented Resources**: Learning content is scattered across hundreds of platforms without clear progression paths.
-- **Lack of Structured Roadmap**: Learners struggle to identify which skills are essential versus optional for specific tech roles.
-- **Difficulty Tracking Progress**: Without unified dashboards, tracking module completions across diverse career topics becomes tedious and discouraging.
-- **Unclear Career Outcomes**: Traditional courses often fail to map individual learning modules directly to target industry roles.
+**PathPilot V2** is a career learning and skill development platform built with the MERN stack (MongoDB, Express, React, Node.js). It provides curated career tracks (e.g. Full Stack Developer, Data Analyst, AI Engineer, UI/UX Designer, Android Developer, Cloud Engineer), organizes curricula into sequential phases, embeds lesson-level study materials, dynamically recalculates student progress, enforces prerequisite module unlocking, and generates verifiable digital career certificates upon 100% completion.
 
 ---
 
-## 2. Solution
+## 2. Target Audience
 
-**PathPilot** addresses these challenges by offering a structured, end-to-end career learning ecosystem:
-
-- **Curated Career Paths**: Dedicated roadmaps for roles like Frontend Developer, Backend Developer, and Data Scientist.
-- **Step-by-Step Learning Modules**: Modularized curriculum focusing on key skill clusters with completion metrics.
-- **Interactive Enrollment & Progress Tracking**: One-click enrollment with stateful progress toggles to measure completion in real time.
-- **Unified Student Dashboard**: A centralized portal displaying active enrollments, completed modules, learning velocity, and quick actions.
+1. **Students & Early-Career Developers**: Seeking structured, milestone-driven learning paths to become job-ready in specific industry domains.
+2. **Platform Administrators**: Content managers who author and sequence career tracks, phases, modules, embedded lessons, and curriculum requirement rules.
+3. **Employers & Evaluators**: Public third parties verifying candidate completion certificates via the public verification portal.
 
 ---
 
-## 3. Objectives
+## 3. Implemented Features (V2 Production State)
 
-- Provide intuitive, step-by-step career path exploration for tech disciplines.
-- Bridge abstract career goals with actionable, modular learning objectives.
-- Empower students to track their personal learning progress with instant UI feedback.
-- Deliver a resilient, modern full-stack web application built on Node.js, Express, MongoDB, and React.
+### Student Workflow
+- **Public Career Catalog**: Browse career paths with skill tags, overview, and estimated duration.
+- **Career Enrollment**: Enroll in active career paths (`POST /api/enrollments/enroll`).
+- **Phase-Based Career Roadmap**: Navigate sequential phases and view prerequisite module unlocking status.
+- **Lesson Content & Resource Viewer**: Read detailed lesson content, key takeaways, and access attached study resources (PDFs, docs, web links, starter code, and video tutorials).
+- **Granular Progress Engine**: Click **"Mark Progress"** on individual lessons to record completion (`POST /api/progress/lesson`) and trigger real-time module percentage updates (0-100%).
+- **Student Overview Dashboard**: View active track status, completed module summary, and overall progress percentage.
+- **Verifiable Career Certificates**: Claim auto-generated career certificates upon 100% curriculum completion (`PP-CERT-2026-XXXX`).
+- **Public Certificate Verification**: Employers can verify authenticity at `/verify-certificate/:certificateId`.
+- **OTP Password Reset**: Reset password securely via 6-digit email OTP.
 
----
-
-## 4. Target Users
-
-| Target Audience | Primary Use Case | Key Value Proposition |
-| :--- | :--- | :--- |
-| **Computer Science & IT Students** | Supplementing academic curriculum with industry-aligned skill roadmaps. | Clear view of market-relevant skill requirements. |
-| **Self-Taught Developers** | Structuring independent learning without buying redundant courses. | Step-by-step module breakdown and progress visualization. |
-| **Career Switchers** | Moving into tech roles from non-traditional backgrounds. | Transparent difficulty indicators and structured progression. |
-
----
-
-## 5. Student Journey
-
-The standard workflow for a student using PathPilot consists of five core stages:
-
-```text
-[ 1. Discovery ]       --->  [ 2. Authentication ] --->  [ 3. Path Selection ]
-Explore available            Register account &          Enroll in targeted
-career tracks & skills.      receive secure JWT token.   career track.
-                                                                  |
-                                                                  v
-[ 5. Dashboard Insights ] <-- [ 4. Active Learning ] <------------+
-Monitor overall progress &    Complete modules & mark
-completion analytics.        progress status.
-```
-
-1. **Discovery**: User explores public career tracks and reviews module outlines.
-2. **Authentication**: User creates an account or logs into PathPilot.
-3. **Path Selection**: Student selects and enrolls in one or more desired career paths.
-4. **Active Learning**: Student progresses through topic modules, toggling completion checkboxes as topics are mastered.
-5. **Dashboard Insights**: Student views real-time progress percentages and completion metrics on their personalized dashboard.
+### Admin Workflow (`/admin/*`)
+- **Admin Platform Analytics Dashboard**: Real-time stats on total users, active careers, total modules, progress records, and issued certificates.
+- **User Account & Role Management**: Search users, toggle active status, reassign user roles (`student`, `admin`, `teacher`, `parent`), and safely delete accounts.
+- **Career & Phase Management**: Complete CRUD operations for career tracks and phase structures.
+- **Module & Lesson Authoring**: Author modules, sequence orders, attach learning objectives, write lesson content, key takeaways, and embed resources.
+- **Curriculum Requirement Management**: Define required, optional, and choice-group completion rules per phase.
 
 ---
 
-## 6. Main Features
+## 4. Feature Implementation Matrix
 
-- **User Authentication**: Secure user registration and login with encrypted passwords (`bcrypt`) and JWT authentication tokens.
-- **Career Catalog**: Explore curated career pathways complete with description, difficulty tier, and module breakdowns.
-- **Module Reader & Progress Toggler**: Interactive view for viewing learning materials and toggling completion states.
-- **Enrollment Center**: Manage active career tracks and track historical enrollments.
-- **Analytics Dashboard**: Aggregated summary statistics showing total enrollments, completed modules, overall progress percentages, and recent activity.
-
----
-
-## 7. Career Learning Workflow
-
-```text
-+-----------------------------------------------------------------------+
-|                           PathPilot Platform                          |
-+-----------------------------------------------------------------------+
-                                    |
-            +-----------------------+-----------------------+
-            |                                               |
-            v                                               v
-  +------------------+                            +------------------+
-  |  Career Pathway  |                            |  User Dashboard  |
-  +------------------+                            +------------------+
-            |                                               |
-            | (Contains N Modules)                          | (Aggregates)
-            v                                               v
-  +------------------+                            +------------------+
-  | Learning Module  | -- (User Marks Complete) -> | Progress Metrics |
-  +------------------+                            +------------------+
-```
-
----
-
-## 8. System Modules
-
-PathPilot Version 1 consists of six integrated sub-systems:
-
-### 1. Authentication Module
-- User registration (`POST /api/auth/register`)
-- User login (`POST /api/auth/login`)
-- Profile retrieval (`GET /api/auth/me`)
-
-### 2. Career Exploration Module
-- Career listing (`GET /api/careers`)
-- Single career detail (`GET /api/careers/:id`)
-
-### 3. Module Management Module
-- Career-specific module fetch (`GET /api/modules/career/:careerId`)
-- Single module detail (`GET /api/modules/:id`)
-
-### 4. Enrollment Module
-- Track enrollment creation (`POST /api/enrollments/enroll`)
-- User active enrollments (`GET /api/enrollments/my-enrollments`)
-
-### 5. Progress Tracking Module
-- State toggle (`POST /api/progress/toggle`)
-- Track progress summary (`GET /api/progress/:careerId`)
-
-### 6. Dashboard Analytics Module
-- Aggregated student metrics (`GET /api/dashboard/overview`)
-
----
-
-## 9. Project Scope
-
-### In-Scope (Version 1)
-- Full RESTful API with Node.js, Express, and MongoDB.
-- Single-page Application UI built with React 19 and Vite.
-- Responsive modern styling using Tailwind CSS.
-- Token-based JWT authentication pipeline.
-- Career browsing, path enrollment, module progress toggling, and dashboard analytics.
-
-### Out-of-Scope (Deferred to V2+)
-- Live video stream hosting.
-- Real-time peer chatting.
-- Payment gateway integration.
-- Automated code execution/ide environments within browser.
-
----
-
-## 10. Version 1 Deliverables
-
-| Deliverable | Component | Description | Status |
-| :--- | :--- | :--- | :--- |
-| **REST API Server** | Backend | Node.js + Express backend serving JSON APIs. | Complete |
-| **MongoDB Schemas** | Database | User, Career, Module, Enrollment, and Progress schemas. | Complete |
-| **Authentication Flow** | Auth | Login, Register, JWT verification, and Protected Routes. | Complete |
-| **React Single Page App** | Frontend | Interactive UI with Dashboard, Career, Module, and Profile views. | Complete |
-| **Career Seeder** | Script | CLI script to seed MongoDB with initial career and module data. | Complete |
-| **Documentation Suite** | Docs | Repository README.md and detailed PROJECT_OVERVIEW.md. | Complete |
-
----
-
-## 11. Version 2 Roadmap Summary
-
-| Feature | Target Quarter | Planned Description |
-| :--- | :--- | :--- |
-| **AI Recommendation Engine** | Q1 V2 | Recommends career paths based on user skills assessment. |
-| **Skill Quizzes & Knowledge Checks** | Q2 V2 | End-of-module quizzes with automated scoring. |
-| **Gamification & Badges** | Q2 V2 | Learning streaks, experience points (XP), and shareable badges. |
-| **Downloadable Certificates** | Q3 V2 | PDF certificate generation upon 100% path completion. |
-| **Community & Peer Discussion** | Q4 V2 | Discussion boards and Q&A forums under each module. |
+| Feature Area | Status | Notes |
+| :--- | :---: | :--- |
+| Student Catalog & Enrollment | **FULLY IMPLEMENTED** | Public exploration, track enrollment, active track switching |
+| Phase Roadmap & Module Viewer | **FULLY IMPLEMENTED** | Phase milestones, module list, prerequisite unlocking |
+| Lesson Content & Resources | **FULLY IMPLEMENTED** | Embedded lessons, key takeaways, resource badges |
+| Granular Lesson Completion | **FULLY IMPLEMENTED** | `POST /api/progress/lesson` recalculates module & career % |
+| Certificate System & Public Verification | **FULLY IMPLEMENTED** | Auto-issuance on 100% completion, unique ID, public verification |
+| OTP Password Reset | **FULLY IMPLEMENTED** | 6-digit email OTP, bcrypt-hashed storage, 10-min TTL |
+| Admin Panel & Management Tools | **FULLY IMPLEMENTED** | Admin dashboard, user management, career/phase/module CRUD |
+| Teacher Portal | **SCAFFOLD ONLY** | Role enum `"teacher"` exists; UI routes/controllers not built |
+| Parent Portal | **SCAFFOLD ONLY** | Role enum `"parent"` exists; UI routes/controllers not built |

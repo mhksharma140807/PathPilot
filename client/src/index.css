@@ -2,13 +2,15 @@
 
 @layer base {
   :root {
-    --color-primary: #4F46E5;
-    --color-primary-dark: #3730A3;
-    --color-accent: #06B6D4;
+    --color-primary: #2563EB;
+    --color-primary-dark: #1D4ED8;
+    --color-accent: #0284C7;
     --color-bg: #F8FAFC;
     --color-surface: #FFFFFF;
+    --color-surface-subtle: #F1F5F9;
     --color-text-main: #0F172A;
     --color-text-muted: #64748B;
+    --color-border: #E2E8F0;
     --color-success: #10B981;
     --color-warning: #F59E0B;
     --color-error: #EF4444;
@@ -19,5 +21,13 @@
     background-color: var(--color-bg);
     color: var(--color-text-main);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image:
+    linear-gradient(to right, rgba(226, 232, 240, 0.45) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.45) 1px, transparent 1px);
 }

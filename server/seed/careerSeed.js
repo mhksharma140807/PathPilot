@@ -159,6 +159,30 @@ const modulesByCareer = {
   ],
 };
 
+const getDefaultLessons = (modTitle) => [
+  {
+    title: `1. Core Overview of ${modTitle || 'Module'}`,
+    duration: "15 mins",
+    content: `Welcome to this module on ${modTitle || 'your track'}. In this lesson, we break down the primary principles, industry standards, and architectural blueprints required to excel in this topic. Review the core concepts thoroughly before moving into practical tasks.`,
+    keyTakeaway: "Understanding fundamental principles ensures software reliability and scalability.",
+    resources: [],
+  },
+  {
+    title: "2. Deep-Dive & Key Concepts",
+    duration: "25 mins",
+    content: "Building on the foundation, this section explores advanced patterns, optimization routines, and practical workflows. Ensure you understand how data flows across components and how to diagnose common edge cases.",
+    keyTakeaway: "Clean separation of concerns improves code readability and maintainability.",
+    resources: [],
+  },
+  {
+    title: "3. Practical Activity & Assessment",
+    duration: "20 mins",
+    content: "Put your knowledge to test! Create a practical prototype demonstrating the skills covered in the previous lessons. Verify error handling, edge cases, and user interface responsiveness.",
+    keyTakeaway: "Empirical testing and practice build confidence for real-world projects.",
+    resources: [],
+  },
+];
+
 async function seedDatabase() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
@@ -176,12 +200,14 @@ async function seedDatabase() {
       const careerModules = modulesByCareer[career.slug];
 
       careerModules.forEach((module, index) => {
+        const modTitle = module[0];
         modules.push({
           career: career._id,
-          title: module[0],
+          title: modTitle,
           description: module[1],
           order: index + 1,
           estimatedHours: 20,
+          lessons: getDefaultLessons(modTitle),
         });
       });
     });

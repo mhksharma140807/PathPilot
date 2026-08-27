@@ -138,11 +138,14 @@ function Register() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">
-                Create Student Account
-              </h2>
-              <p className="mt-1.5 text-xs text-slate-500 font-medium">
-                Fill in your details below to activate your learning roadmap.
+              <span className="font-mono text-[10px] font-bold text-[#2563EB] uppercase tracking-wider bg-blue-50 border border-blue-100/80 px-2 py-0.5 rounded-md inline-block mb-1.5">
+                REGISTRATION
+              </span>
+              <h1 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">
+                Create Your PathPilot Account
+              </h1>
+              <p className="mt-1 text-xs text-slate-500 font-medium">
+                Start with a structured path and build your career step by step.
               </p>
             </div>
 

@@ -141,11 +141,14 @@ function Login() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">
-                Student Sign In
-              </h2>
-              <p className="mt-1.5 text-xs text-slate-500 font-medium">
-                Access your personalized learning path, modules & progress analytics.
+              <span className="font-mono text-[10px] font-bold text-[#2563EB] uppercase tracking-wider bg-blue-50 border border-blue-100/80 px-2 py-0.5 rounded-md inline-block mb-1.5">
+                AUTHENTICATION
+              </span>
+              <h1 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">
+                Sign In to PathPilot
+              </h1>
+              <p className="mt-1 text-xs text-slate-500 font-medium">
+                Enter your credentials to continue to your dashboard.
               </p>
             </div>
 
@@ -231,7 +234,7 @@ function Login() {
                     <span>Signing in...</span>
                   </>
                 ) : (
-                  <span>Sign In to Dashboard →</span>
+                  <span>Sign In →</span>
                 )}
               </button>
             </form>
@@ -254,8 +257,8 @@ function Login() {
             </div>
           </div>
 
-          <div className="text-center text-[11px] text-slate-400 pt-6">
-            Powered by PathPilot Ecosystem
+          <div className="text-center text-[10px] font-mono text-slate-400 pt-4">
+            PathPilot System Architecture
           </div>
         </div>
       </div>
