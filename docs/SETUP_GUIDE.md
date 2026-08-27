@@ -1,271 +1,107 @@
-# PathPilot Installation & Developer Setup Guide
+# PathPilot V2 Setup & Installation Guide
 
-> Comprehensive Setup, Configuration, and Troubleshooting Manual for PathPilot
+## 1. System Requirements & Prerequisites
 
----
-
-## 1. System Requirements
-
-Before installing PathPilot, ensure your system satisfies the following software prerequisites:
-
-| Requirement | Supported Version | Verification Command | Notes |
-| :--- | :--- | :--- | :--- |
-| **Node.js** | `v18.x` or `v20.x` | `node -v` | JavaScript runtime environment. |
-| **npm** | `v9.x` or `v10.x` | `npm -v` | Node Package Manager bundled with Node.js. |
-| **MongoDB** | `v6.0` or higher | `mongod --version` | Local MongoDB service or MongoDB Atlas cluster URI. |
-| **Git** | `v2.x` or higher | `git --version` | Version control system. |
-| **VS Code** | Latest Release | `code -v` | Recommended IDE with ESLint & Prettier extensions. |
+- **Node.js**: `v18.x` or higher (`v24.x` tested)
+- **npm**: `v9.x` or higher
+- **MongoDB**: Local MongoDB instance (`mongodb://localhost:27017`) or MongoDB Atlas connection string
+- **Git**: For repository cloning
 
 ---
 
-## 2. Installation
+## 2. Environment Variables Configuration
 
-### Step 1: Clone Repository
-
-Open your terminal and clone the PathPilot repository to your local directory:
-
-```bash
-git clone https://github.com/mhksharma140807/PathPilot.git
-cd PathPilot
-```
-
----
-
-### Step 2: Install Backend Server Dependencies
-
-Navigate to the `server` directory and install all required Node modules:
-
-```bash
-cd server
-npm install
-```
-
----
-
-### Step 3: Install Frontend Client Dependencies
-
-Open a new terminal window or return to the project root, navigate to `client`, and install dependencies:
-
-```bash
-cd ../client
-npm install
-```
-
----
-
-## 3. Environment Variables Configuration
-
-The backend application relies on environment variables defined in a `.env` file located in the `server` directory.
-
-### Create `.env` File
-
-Create a file named `.env` inside `c:\projects\pathpilot\server\.env` with the following configuration keys:
+Create a `.env` file in the `server/` directory using the actual variable names from the codebase:
 
 ```env
 PORT=5000
-MONGO_URI=<mongodb_connection_string>
-JWT_SECRET=<jwt_secret_key>
+MONGODB_URI=mongodb://localhost:27017/pathpilot
+JWT_SECRET=pathpilot_super_secret_2026_key
+FRONTEND_URL=http://localhost:5173
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+EMAIL_FROM="PathPilot Support" <your_email@gmail.com>
 ```
 
-### Key Descriptions
+### Environment Variables Glossary
+| Variable | Required | Description | Example / Default |
+| :--- | :---: | :--- | :--- |
+| `PORT` | Optional | Port for Express backend server | `5000` |
+| `MONGODB_URI` | **Required** | MongoDB connection URI string | `mongodb://localhost:27017/pathpilot` |
+| `JWT_SECRET` | **Required** | Secret key for signing JWT tokens | `pathpilot_super_secret_2026_key` |
+| `FRONTEND_URL` | Optional | Client URL for CORS policy | `http://localhost:5173` |
+| `EMAIL_HOST` | Optional | SMTP host for sending OTP emails | `smtp.gmail.com` |
+| `EMAIL_PORT` | Optional | SMTP port | `587` |
+| `EMAIL_USER` | Optional | SMTP authentication email address | `support@example.com` |
+| `EMAIL_PASS` | Optional | SMTP app password | `app_password` |
+| `EMAIL_FROM` | Optional | Sender header string | `"PathPilot Support" <support@example.com>` |
 
-| Environment Variable | Required | Default Value | Description |
-| :--- | :--- | :--- | :--- |
-| `PORT` | Yes | `5000` | HTTP Port for Express REST API backend. |
-| `MONGO_URI` | Yes | `<your_mongodb_connection_string>` | MongoDB connection string. |
-| `JWT_SECRET` | Yes | *Required Secret Key* | Secret string used to sign and verify JSON Web Tokens. |
+Create a `.env` file in the `client/` directory:
+```env
+VITE_API_URL=http://localhost:5000/api
+```
 
 ---
 
-## 4. MongoDB Configuration
+## 3. Step-by-Step Local Installation
 
-PathPilot requires access to a running MongoDB instance.
-
-### Option A: Local MongoDB Community Edition
-1. Ensure the MongoDB service is running locally on default port `27017`.
-2. Windows Service verification:
-   ```powershell
-   Get-Service -Name MongoDB
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/mhksharma140807/PathPilot.git
+   cd pathpilot
    ```
-3. If stopped, start the service:
-   ```powershell
-   Start-Service -Name MongoDB
+
+2. **Install Backend Dependencies**:
+   ```bash
+   cd server
+   npm install
    ```
 
-### Option B: Seed Initial Career Data
-Populate the database with initial career pathways and learning modules:
+3. **Install Frontend Dependencies**:
+   ```bash
+   cd ../client
+   npm install
+   ```
 
-```bash
-cd server
-npm run seed:careers
-```
+4. **Seed Database Careers & Backfill Module Lessons**:
+   ```bash
+   cd ../server
+   # Seed career tracks, phases, modules & default embedded lessons
+   npm run seed:careers
 
----
+   # Run backfill script (ensures all modules contain embedded lesson subdocuments)
+   node scripts/backfillModuleLessons.js
 
-## 5. Running the Application
+   # Optional: Seed initial admin user account
+   node scripts/seedAdminUser.js
+   ```
 
-### Running the Backend Server
+5. **Start Development Servers**:
+   ```bash
+   # Start backend server (Port 5000)
+   cd server
+   npm run dev
 
-Start the backend server in development mode (with automatic reloading via `nodemon`):
-
-```bash
-cd server
-npm run dev
-```
-
-- Expected Output:
-  ```text
-  [nodemon] 3.1.14
-  [nodemon] starting `node server.js`
-  Server running on port 5000
-  MongoDB Connected successfully.
-  ```
-
----
-
-### Running the Frontend Client
-
-Start the Vite development server in a separate terminal:
-
-```bash
-cd client
-npm run dev
-```
-
-- Expected Output:
-  ```text
-    VITE v8.1.1  ready in 250 ms
-
-    ➜  Local:   http://localhost:5173/
-    ➜  Network: use --host to expose
-  ```
-
-Open your browser and navigate to `http://localhost:5173`.
+   # In a new terminal tab, start frontend client (Port 5173)
+   cd client
+   npm run dev
+   ```
 
 ---
 
-## 6. Project Structure Overview
+## 4. Production Deployment Configurations
 
-```text
-pathpilot/
-├── client/                     # React 19 Frontend App
-│   ├── src/
-│   │   ├── components/         # Reusable UI Components
-│   │   ├── context/            # Auth Context Provider
-│   │   ├── pages/              # Application View Pages
-│   │   ├── routes/             # Client Routing Table
-│   │   └── services/           # Axios API Client
-│   ├── package.json
-│   └── vite.config.js
-│
-├── server/                     # Node.js / Express API Backend
-│   ├── config/                 # Database Configuration
-│   ├── controllers/            # API Route Logic Handlers
-│   ├── middleware/             # Authentication Middlewares
-│   ├── models/                 # Mongoose Data Schemas
-│   ├── routes/                 # Express Route Declarations
-│   ├── seed/                   # Database Seed Scripts
-│   ├── .env                    # Environment Variable Definitions
-│   └── server.js               # Entry Point
-│
-├── docs/                       # Comprehensive Architecture & API Documentation
-└── README.md                   # Repository Overview
-```
+- **Frontend Deployment (Vercel)**:
+  - Framework Preset: Vite
+  - Build Command: `npm run build`
+  - Output Directory: `dist`
+  - Environment Variable: `VITE_API_URL=https://pathpilot-backend-3byw.onrender.com/api`
+  - Rewrites (`vercel.json`): Single Page Application fallback `{ "source": "/(.*)", "destination": "/index.html" }`
 
----
-
-## 7. Development Workflow & Commands
-
-### Useful npm Commands
-
-#### Server Directory (`server/`)
-- `npm run dev`: Starts Express server with `nodemon` hot reloading.
-- `npm start`: Starts production Node server.
-- `npm run seed:careers`: Runs database seed script to populate sample careers.
-
-#### Client Directory (`client/`)
-- `npm run dev`: Starts Vite frontend development server at `http://localhost:5173`.
-- `npm run build`: Compiles optimized production distribution build in `dist/`.
-- `npm run lint`: Runs ESLint checks across React codebase.
-
----
-
-### Git Workflow Commands
-
-```bash
-# Check repository status
-git status
-
-# Create a feature branch
-git checkout -b feature/new-module
-
-# Stage and commit changes
-git add .
-git commit -m "docs: complete setup guide"
-
-# Push branch to remote
-git push origin feature/new-module
-```
-
----
-
-## 8. Troubleshooting & Common Errors
-
-### 1. MongoDB Connection Error
-
-#### Error Message
-`MongoNetworkError: connect ECONNREFUSED 127.0.0.1:27017`
-
-#### Solution
-- Check if your local MongoDB service is running.
-- On Windows PowerShell:
-  ```powershell
-  net start MongoDB
-  ```
-- If using MongoDB Atlas, check your network access settings in Atlas and verify the `MONGO_URI` connection string in `server/.env`.
-
----
-
-### MongoDB Atlas DNS Note
-
-If MongoDB Atlas SRV lookup fails on some Windows/ISP networks with:
-
-querySrv ECONNREFUSED
-
-PathPilot includes a development-only DNS fallback using Google Public DNS (8.8.8.8 / 8.8.4.4). This runs only in development and is ignored in production.
-
-### 2. Missing `.env` File Error
-
-#### Error Message
-`Error: secretOrPrivateKey must have a value` OR `undefined MONGO_URI`
-
-#### Solution
-- Ensure a `.env` file exists in the `server/` directory.
-- Confirm `JWT_SECRET` and `MONGO_URI` are defined without spaces around `=` signs.
-
----
-
-### 3. Port Already Used Error
-
-#### Error Message
-`Error: listen EADDRINUSE: address already in use :::5000`
-
-#### Solution
-- Another process is using port `5000`.
-- Terminate the running Node process:
-  - Windows:
-    ```powershell
-    Stop-Process -Id (Get-NetTCPConnection -LocalPort 5000).OwningProcess -Force
-    ```
-- Alternatively, edit `PORT=5001` in `server/.env`.
-
----
-
-### 4. Invalid or Expired Token Error
-
-#### Error Message
-`401 Unauthorized: Access denied. Invalid token.`
-
-#### Solution
-- Clear your browser's local storage (`localStorage.clear()`).
-- Log out and log back into the PathPilot application to acquire a freshly signed JWT token.
+- **Backend Deployment (Render)**:
+  - Environment: Node.js Service
+  - Build Command: `npm install`
+  - Start Command: `node server.js`
+  - Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `FRONTEND_URL`, SMTP settings.
