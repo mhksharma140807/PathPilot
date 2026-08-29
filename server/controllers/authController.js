@@ -211,10 +211,11 @@ const forgotPassword = async (req, res) => {
       isUsed: false,
     });
 
-    // Send email asynchronously
-    sendOtpEmail(normalizedEmail, otp).catch((err) => {
-      console.error("Background email sending error:", err.message);
-    });
+    // Send email and wait for completion before returning response
+    const mailResult = await sendOtpEmail(normalizedEmail, otp);
+    if (!mailResult.success) {
+      console.error("❌ Password reset OTP email failed to send:", mailResult.error || mailResult.reason);
+    }
 
     console.log(`[DEV ONLY] OTP generated for ${normalizedEmail}: ${otp}`);
 
